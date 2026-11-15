@@ -1,6 +1,5 @@
 import Link from 'next/link'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import Site from '@/components/Site'
 import HeroSlider from '@/components/HeroSlider'
 import Poll from '@/components/Poll'
 import { Cta } from '@/components/Blocks'
@@ -16,9 +15,7 @@ const POLES = [
 export default async function Home() {
   const [slides, services, projects] = await Promise.all([getSlides(), getServices(), getProjects()])
   return (
-    <>
-      <Header />
-      <main>
+    <Site>
         <HeroSlider slides={slides} />
         <Poll options={poll} />
         <section className="section white" style={{ paddingTop: 0 }}>
@@ -79,8 +76,6 @@ export default async function Home() {
           </div>
         </section>
         <Cta />
-      </main>
-      <Footer />
-    </>
+    </Site>
   )
 }

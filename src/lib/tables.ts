@@ -1,4 +1,4 @@
-export type Field = { name: string; label: string; type: 'text' | 'textarea' | 'number' | 'bool' | 'list' | 'select' | 'json' | 'image'; required?: boolean; options?: string[] }
+export type Field = { name: string; label: string; type: 'text' | 'textarea' | 'number' | 'bool' | 'list' | 'select' | 'json' | 'image' | 'ref'; required?: boolean; options?: string[]; ref?: { table: string; label: string } }
 export type TableDef = { label: string; key: string; order: string; title: string; fields: Field[] }
 
 const pos: Field = { name: 'position', label: 'Ordre', type: 'number' }
@@ -44,6 +44,22 @@ export const TABLES: Record<string, TableDef> = {
     { name: 'body', label: "Texte de l'article", type: 'textarea' },
     { name: 'cover_url', label: 'Image de couverture', type: 'image' },
     { name: 'published_at', label: 'Date de publication (AAAA-MM-JJ)', type: 'text' }, pub] },
+  trainings: { label: 'Formations', key: 'id', order: 'position', title: 'title', fields: [
+    { name: 'title', label: 'Titre', type: 'text', required: true },
+    { name: 'slug', label: 'Identifiant (sans espace)', type: 'text', required: true },
+    { name: 'type', label: 'Type', type: 'select', options: ['Présentiel', 'En ligne', 'Hybride'], required: true },
+    { name: 'level', label: 'Niveau', type: 'select', options: ['Débutant', 'Intermédiaire', 'Avancé'], required: true },
+    { name: 'summary', label: 'Résumé', type: 'textarea', required: true },
+    { name: 'description', label: 'Présentation détaillée', type: 'textarea' },
+    { name: 'duration', label: 'Durée (ex. 5 jours)', type: 'text' },
+    { name: 'price_xof', label: 'Prix (FCFA)', type: 'number', required: true },
+    { name: 'next_session', label: 'Prochaine session', type: 'text' },
+    { name: 'image_url', label: 'Image', type: 'image' }, pos, pub] },
+  training_modules: { label: 'Modules de formation', key: 'id', order: 'position', title: 'title', fields: [
+    { name: 'training_id', label: 'Formation', type: 'ref', ref: { table: 'trainings', label: 'title' }, required: true },
+    { name: 'title', label: 'Titre du module', type: 'text', required: true },
+    { name: 'content', label: 'Contenu', type: 'textarea' },
+    { name: 'duration', label: 'Durée', type: 'text' }, pos, pub] },
   faqs: { label: 'Chatbot : questions fréquentes', key: 'id', order: 'position', title: 'question', fields: [
     { name: 'question', label: 'Question', type: 'text', required: true },
     { name: 'answer', label: 'Réponse ({phones}, {email}, {address}, {hours} sont remplacés)', type: 'textarea', required: true },

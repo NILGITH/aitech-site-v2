@@ -113,7 +113,7 @@ export default function Assistant({ whatsapp, faqs, services }: { whatsapp: stri
             <span>WhatsApp</span>
           </a>
         )}
-        <button type="button" className="assist-fab bot" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        <button type="button" className="assist-fab bot" aria-label={open ? "Fermer l'assistant" : "Ouvrir l'assistant : une question ?"} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9l-5 4V5a1 1 0 0 1 1-1Zm3 5v2h10V9H7Zm0 4v2h6v-2H7Z"/></svg>
           <span>{open ? 'Fermer' : 'Une question ?'}</span>
         </button>

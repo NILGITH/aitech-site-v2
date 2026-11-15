@@ -734,5 +734,99 @@
     "secteur"
    ]
   }
+ ],
+ "trainings": [
+  {
+   "slug": "administration-reseaux-et-systemes",
+   "title": "Administration réseaux et systèmes",
+   "type": "Présentiel",
+   "level": "Intermédiaire",
+   "summary": "Installer, configurer et superviser un réseau d'entreprise et ses serveurs, avec des travaux pratiques sur du matériel réel.",
+   "description": "Une formation pratique pour les techniciens et administrateurs qui gèrent le réseau et les serveurs d'une PME.",
+   "duration": "5 jours",
+   "price_xof": 250000,
+   "next_session": "Prochaine session : nous consulter",
+   "image_url": "/images/network.jpg",
+   "modules": [
+    {
+     "title": "Fondamentaux des réseaux",
+     "content": "Adressage IP, VLAN, routage et câblage structuré.",
+     "duration": "1 jour"
+    },
+    {
+     "title": "Serveurs et services",
+     "content": "Annuaire, partage de fichiers, DHCP et DNS.",
+     "duration": "1,5 jour"
+    },
+    {
+     "title": "Sécurité et sauvegarde",
+     "content": "Pare-feu, VPN, politique de sauvegarde et de restauration.",
+     "duration": "1,5 jour"
+    },
+    {
+     "title": "Supervision au quotidien",
+     "content": "Outils de monitoring, alertes et gestion des incidents.",
+     "duration": "1 jour"
+    }
+   ]
+  },
+  {
+   "slug": "developpement-web-react-nextjs",
+   "title": "Développement web avec React et Next.js",
+   "type": "En ligne",
+   "level": "Débutant",
+   "summary": "Créer une application web moderne de A à Z : interface, données, mise en ligne.",
+   "description": "Un parcours en ligne avec un projet fil rouge, pour les développeurs débutants qui veulent livrer une vraie application.",
+   "duration": "6 semaines",
+   "price_xof": 180000,
+   "next_session": "Prochaine session : nous consulter",
+   "image_url": "/images/code.jpg",
+   "modules": [
+    {
+     "title": "Bases de JavaScript et de React",
+     "content": "Composants, état, formulaires.",
+     "duration": "2 semaines"
+    },
+    {
+     "title": "Next.js et les données",
+     "content": "Pages, routes, base de données et authentification.",
+     "duration": "2 semaines"
+    },
+    {
+     "title": "Projet et mise en ligne",
+     "content": "Projet fil rouge, tests et déploiement.",
+     "duration": "2 semaines"
+    }
+   ]
+  },
+  {
+   "slug": "cybersecurite-bons-reflexes",
+   "title": "Cybersécurité : les bons réflexes en entreprise",
+   "type": "Hybride",
+   "level": "Débutant",
+   "summary": "Sensibiliser vos équipes aux risques numériques : hameçonnage, mots de passe, protection des données.",
+   "description": "Une formation courte pour tous les collaborateurs, sans prérequis technique.",
+   "duration": "2 jours",
+   "price_xof": 90000,
+   "next_session": "Prochaine session : nous consulter",
+   "image_url": "/images/cctv.jpg",
+   "modules": [
+    {
+     "title": "Les menaces courantes",
+     "content": "Hameçonnage, rançongiciels, fraude au paiement.",
+     "duration": "0,5 jour"
+    },
+    {
+     "title": "Protéger ses accès",
+     "content": "Mots de passe, double authentification, appareils mobiles.",
+     "duration": "0,5 jour"
+    },
+    {
+     "title": "Protéger les données de l'entreprise",
+     "content": "Sauvegardes, partage de fichiers, conduite à tenir en cas d'incident.",
+     "duration": "1 jour"
+    }
+   ]
+  }
  ]
 }

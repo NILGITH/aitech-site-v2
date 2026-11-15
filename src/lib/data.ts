@@ -24,6 +24,19 @@ export const getServices = () => rows<Service>('services', seed.services as Serv
 export const getSolutions = () => rows<Solution>('solutions', seed.solutions)
 export const getProjects = () => rows<Project>('projects', seed.projects as Project[])
 export const getTeam = () => rows<Member>('team_members', seed.team)
+export type TrainingModule = { title: string; content: string | null; duration: string | null; position?: number }
+export type Training = { slug: string; title: string; type: string; level: string; summary: string; description: string | null; duration: string | null; price_xof: number; next_session: string | null; image_url: string | null; modules: TrainingModule[] }
+
+export async function getTrainings(): Promise<Training[]> {
+  const db = publicClient()
+  if (db) {
+    const { data } = await db.from('trainings').select('*, training_modules(title, content, duration, position)').order('position', { ascending: true })
+    if (data && data.length > 0) {
+      return data.map((t) => ({ ...t, modules: ((t.training_modules ?? []) as TrainingModule[]).sort((a, b) => (a.position ?? 0) - (b.position ?? 0)) })) as Training[]
+    }
+  }
+  return seed.trainings as Training[]
+}
 export const getFaqs = () => rows<Faq>('faqs', seed.faqs)
 export const getProducts = () => rows<Product>('products', seed.products)
 

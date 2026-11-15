@@ -57,6 +57,19 @@ async function requireAdmin() {
   return db
 }
 
+export async function enrollTraining(_: FormState, f: FormData): Promise<FormState> {
+  const name = str(f, 'name'), email = str(f, 'email'), phone = str(f, 'phone')
+  if (!name || !email || !phone) return { ok: false, message: 'Merci de renseigner votre nom, votre e-mail et votre téléphone.' }
+  const db = publicClient()
+  if (!db) return { ok: false, message: NOT_READY }
+  const { data: reference, error } = await db.rpc('enroll_training', {
+    p_slug: str(f, 'slug'), p_name: name, p_email: email, p_phone: phone, p_company: str(f, 'company'), p_message: str(f, 'message'),
+  })
+  if (error?.message?.includes('unknown_training')) return { ok: false, message: "Cette formation n'est plus ouverte aux inscriptions." }
+  if (error || !reference) return { ok: false, message: "L'inscription n'a pas pu être enregistrée. Réessayez dans un instant." }
+  return { ok: true, message: `Inscription ${reference} enregistrée. Le paiement en ligne n'est pas encore activé : nous vous contactons pour confirmer votre place et le règlement.` }
+}
+
 export async function signIn(_: FormState, f: FormData): Promise<FormState> {
   const db = await sessionClient()
   if (!db) return { ok: false, message: "La base de données n'est pas encore connectée." }
@@ -75,6 +88,13 @@ export async function setQuoteStatus(f: FormData) {
   const db = await requireAdmin()
   await db.from('quote_requests').update({ status: str(f, 'status'), admin_notes: str(f, 'admin_notes') || null }).eq('id', str(f, 'id'))
   revalidatePath('/admin/devis')
+}
+
+export async function setEnrollmentStatus(f: FormData) {
+  const db = await requireAdmin()
+  const status = str(f, 'status')
+  await db.from('training_enrollments').update({ status, paid_at: status === 'paid' ? new Date().toISOString() : null }).eq('id', str(f, 'id'))
+  revalidatePath('/admin/inscriptions')
 }
 
 export async function setOrderStatus(f: FormData) {
@@ -96,6 +116,7 @@ export async function saveRow(f: FormData) {
     else if (field.type === 'number') row[field.name] = Number(raw || 0)
     else if (field.type === 'list') row[field.name] = raw.split('\n').map((s) => s.trim()).filter(Boolean)
     else if (field.type === 'json') { try { row[field.name] = JSON.parse(raw) } catch { return } }
+    else if (field.type === 'ref' && raw === '') return
     else row[field.name] = raw === '' && !field.required ? null : raw
   }
   const id = str(f, '_id')

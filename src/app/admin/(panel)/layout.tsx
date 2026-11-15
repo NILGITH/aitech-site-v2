@@ -14,7 +14,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   if (!data.user) redirect('/admin/login')
   const { data: isAdmin } = await db.rpc('is_admin')
   if (!isAdmin) redirect('/admin/login?refus=1')
-  const content = Object.entries(TABLES).filter(([k]) => k !== 'products')
+  const content = Object.entries(TABLES).filter(([k]) => !['products', 'trainings', 'training_modules'].includes(k))
   return (
     <div className="admin">
       <aside>
@@ -24,6 +24,10 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <span className="grp">Boutique</span>
         <Link href="/admin/commandes">Commandes</Link>
         <Link href="/admin/contenus/products">Produits</Link>
+        <span className="grp">Formations</span>
+        <Link href="/admin/inscriptions">Inscriptions</Link>
+        <Link href="/admin/contenus/trainings">Formations</Link>
+        <Link href="/admin/contenus/training_modules">Modules</Link>
         <span className="grp">Contenus</span>
         {content.map(([key, def]) => <Link key={key} href={`/admin/contenus/${key}`}>{def.label}</Link>)}
         <form action={signOut} style={{ marginTop: 'auto' }}><button className="btn small dark" type="submit">Se déconnecter</button></form>
