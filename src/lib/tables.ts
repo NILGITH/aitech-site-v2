@@ -44,6 +44,10 @@ export const TABLES: Record<string, TableDef> = {
     { name: 'body', label: "Texte de l'article", type: 'textarea' },
     { name: 'cover_url', label: "Adresse de l'image", type: 'text' },
     { name: 'published_at', label: 'Date de publication (AAAA-MM-JJ)', type: 'text' }, pub] },
+  faqs: { label: 'Chatbot : questions fréquentes', key: 'id', order: 'position', title: 'question', fields: [
+    { name: 'question', label: 'Question', type: 'text', required: true },
+    { name: 'answer', label: 'Réponse ({phones}, {email}, {address}, {hours} sont remplacés)', type: 'textarea', required: true },
+    { name: 'keywords', label: 'Mots-clés déclencheurs (un par ligne, sans accent)', type: 'list' }, pos, pub] },
   products: { label: 'Produits de la boutique', key: 'id', order: 'position', title: 'name', fields: [
     { name: 'name', label: 'Nom', type: 'text', required: true },
     { name: 'slug', label: 'Identifiant (sans espace)', type: 'text', required: true },
@@ -53,5 +57,5 @@ export const TABLES: Record<string, TableDef> = {
     { name: 'active', label: 'En vente', type: 'bool' }] },
   site_settings: { label: 'Coordonnées', key: 'key', order: 'key', title: 'key', fields: [
     { name: 'key', label: 'Clé (contact)', type: 'text', required: true },
-    { name: 'value', label: 'Valeur (JSON : phones, email, address, hours)', type: 'json', required: true }] },
+    { name: 'value', label: 'Valeur (JSON : phones, whatsapp, email, address, hours)', type: 'json', required: true }] },
 }

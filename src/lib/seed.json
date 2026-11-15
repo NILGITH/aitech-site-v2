@@ -635,6 +635,104 @@
     "Dimanche",
     "Fermé"
    ]
-  ]
- }
+  ],
+  "whatsapp": "+225 07 48 96 02 31"
+ },
+ "faqs": [
+  {
+   "question": "Comment obtenir un devis ?",
+   "answer": "Décrivez votre besoin dans le formulaire de la page Contact, ou écrivez-nous directement sur WhatsApp. Un conseiller AITECH vous recontacte avec une proposition.",
+   "keywords": [
+    "devis",
+    "prix",
+    "tarif",
+    "cout",
+    "combien",
+    "proposition",
+    "offre"
+   ]
+  },
+  {
+   "question": "Quels sont vos horaires ?",
+   "answer": "Nous sommes ouverts : {hours}.",
+   "keywords": [
+    "horaire",
+    "heure",
+    "ouvert",
+    "ouverture",
+    "ferme",
+    "samedi",
+    "dimanche"
+   ]
+  },
+  {
+   "question": "Où se trouve AITECH ?",
+   "answer": "Nos bureaux sont à {address}.",
+   "keywords": [
+    "adresse",
+    "situe",
+    "localisation",
+    "bureau",
+    "ou",
+    "trouver",
+    "cocody",
+    "abidjan"
+   ]
+  },
+  {
+   "question": "Comment vous joindre ?",
+   "answer": "Par téléphone au {phones}, par e-mail à {email}, ou sur WhatsApp avec le bouton ci-dessous.",
+   "keywords": [
+    "contact",
+    "joindre",
+    "telephone",
+    "numero",
+    "appeler",
+    "email",
+    "mail"
+   ]
+  },
+  {
+   "question": "J'ai une panne, que faire ?",
+   "answer": "Écrivez-nous sur WhatsApp ou appelez le {phones} en décrivant la panne (équipement concerné, message d'erreur, depuis quand). Un technicien prend le relais.",
+   "keywords": [
+    "panne",
+    "urgence",
+    "urgent",
+    "probleme",
+    "bug",
+    "depannage",
+    "assistance",
+    "support",
+    "marche"
+   ]
+  },
+  {
+   "question": "Comment commander dans la boutique ?",
+   "answer": "Ajoutez les produits au panier sur la page Boutique puis validez la commande. Notre équipe vous contacte ensuite pour confirmer le paiement et la livraison.",
+   "keywords": [
+    "boutique",
+    "commander",
+    "commande",
+    "acheter",
+    "achat",
+    "produit",
+    "livraison",
+    "paiement",
+    "payer"
+   ]
+  },
+  {
+   "question": "Travaillez-vous avec les PME ?",
+   "answer": "Oui. Nous accompagnons aussi bien les PME que les grandes structures : dites-nous votre secteur et votre besoin, nous adaptons la solution et le budget.",
+   "keywords": [
+    "pme",
+    "petite",
+    "entreprise",
+    "startup",
+    "particulier",
+    "secteur"
+   ]
+  }
+ ]
 }

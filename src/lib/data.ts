@@ -8,7 +8,8 @@ export type Project = { slug: string; category: 'infra' | 'web' | 'mobile'; tag:
 export type Member = { name: string; role: string; bio: string | null; photo_url?: string | null }
 export type Product = { id?: string; slug: string; category: string; name: string; description: string; price_xof: number }
 export type Post = { slug: string; category: string; author: string | null; title: string; excerpt: string; date: string }
-export type Settings = { phones: string[]; email: string; address: string; hours: string[][] }
+export type Settings = { phones: string[]; email: string; address: string; hours: string[][]; whatsapp?: string }
+export type Faq = { question: string; answer: string; keywords: string[] }
 
 async function rows<T>(table: string, fallback: T[], order = 'position'): Promise<T[]> {
   const db = publicClient()
@@ -23,6 +24,7 @@ export const getServices = () => rows<Service>('services', seed.services as Serv
 export const getSolutions = () => rows<Solution>('solutions', seed.solutions)
 export const getProjects = () => rows<Project>('projects', seed.projects as Project[])
 export const getTeam = () => rows<Member>('team_members', seed.team)
+export const getFaqs = () => rows<Faq>('faqs', seed.faqs)
 export const getProducts = () => rows<Product>('products', seed.products)
 
 export async function getPosts(): Promise<Post[]> {
