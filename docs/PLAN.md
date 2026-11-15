@@ -10,8 +10,12 @@ Maquette validée le 15/11/2026 (gris du logo #5A5A5A, azur #318CF7, touches de 
 5. Prévisualisation Vercel, validation, puis bascule de aitech-ci.com.
 
 ## État
-- [x] Projet Next.js initialisé, images et logo en place (`public/images`).
-- [x] Schéma de base de données : `supabase/migrations/0001_init.sql` (non appliqué).
-- [ ] Dépôt GitHub `NILGITH/aitech-site-v2` à créer.
-- [ ] Projet Supabase : limite de 2 projets gratuits atteinte sur le compte.
-- [ ] Prestataire de paiement à choisir.
+- [x] Site public : les 9 pages + mentions légales et confidentialité (texte à reprendre). Sans base connectée, le site affiche les contenus de `src/lib/seed.json`.
+- [x] Backoffice `/admin` : connexion, tableau de bord (devis, commandes, résultats du sondage), demandes de devis (statut, note), commandes (statut), contenus et produits (ajout, modification, suppression).
+- [x] Formulaire de devis, sondage et panier reliés à la base (actions serveur ; les prix sont relus côté serveur).
+- [x] Schéma `supabase/migrations/0001_init.sql` et contenus initiaux `0002_seed.sql` (non appliqués).
+- [ ] Dépôt GitHub `NILGITH/aitech-site-v2` à créer, puis pousser ce code.
+- [ ] Projet Supabase à créer (compte vercel@hrtalentspartners.com), appliquer les deux fichiers SQL, créer le compte administrateur et l'ajouter à la table `admins`.
+- [ ] Variables d'environnement Vercel (voir `.env.example`).
+- [ ] Paiement en ligne : prestataire à choisir ; pour l'instant la commande est enregistrée « en attente ».
+- [ ] Non testé : envoi réel d'un devis, d'une commande et connexion au backoffice (nécessitent la base).

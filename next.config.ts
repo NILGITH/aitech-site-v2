@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Modèle de cache classique : les pages publiques se régénèrent toutes les 60 s (export `revalidate`).
+  cacheComponents: false,
 };
 
 export default nextConfig;

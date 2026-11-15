@@ -1,0 +1,640 @@
+{
+ "slides": [
+  {
+   "tab_label": "Connecter",
+   "title": "Connecter vos sites, vos équipes, vos caméras.",
+   "body": "Câblage réseau, serveurs, pare-feu et vidéosurveillance : AITECH installe et entretient l'infrastructure qui fait tourner votre activité.",
+   "image_url": "/images/network.jpg"
+  },
+  {
+   "tab_label": "Innover",
+   "title": "Innover avec des outils faits pour votre métier.",
+   "body": "Sites web, applications mobiles, plateformes de gestion et paiement mobile, conçus à Abidjan pour les réalités du terrain.",
+   "image_url": "/images/devs.jpg"
+  },
+  {
+   "tab_label": "Transformer",
+   "title": "Transformer votre organisation, pas seulement vos machines.",
+   "body": "Conseil, sécurité informatique et formation : vos équipes gagnent en maîtrise, vos données restent protégées.",
+   "image_url": "/images/meeting.jpg"
+  }
+ ],
+ "services": [
+  {
+   "slug": "infogerance-et-maintenance-it",
+   "pole": "connecter",
+   "title": "Infogérance et maintenance IT",
+   "summary": "Gestion et maintenance de votre infrastructure informatique pour assurer son bon fonctionnement au quotidien et optimiser vos performances.",
+   "features": [
+    "Maintenance préventive et corrective",
+    "Support technique et assistance utilisateurs",
+    "Administration systèmes et réseaux",
+    "Gestion de parc informatique",
+    "Sauvegarde et restauration de données",
+    "Supervision et monitoring 24/7"
+   ]
+  },
+  {
+   "slug": "hebergement-web-cloud",
+   "pole": "connecter",
+   "title": "Hébergement web & Cloud",
+   "summary": "Solutions d'hébergement fiables et performantes pour vos applications et données, avec une disponibilité garantie 24/7.",
+   "features": [
+    "Hébergement de sites web et applications",
+    "Solutions Cloud sécurisées",
+    "Serveurs dédiés et virtuels",
+    "Gestion des noms de domaine",
+    "Certificats SSL/TLS",
+    "Scaling automatique des ressources"
+   ]
+  },
+  {
+   "slug": "videosurveillance-controle-d-acces",
+   "pole": "connecter",
+   "title": "Vidéosurveillance & contrôle d'accès",
+   "summary": "Installation et gestion de systèmes de vidéosurveillance et de contrôle d'accès pour sécuriser vos locaux et protéger vos biens.",
+   "features": [
+    "Installation de systèmes de vidéosurveillance",
+    "Gestion des contrôles d'accès",
+    "Intégration avec les systèmes existants",
+    "Maintenance des équipements",
+    "Sauvegarde et restauration",
+    "Support technique dédié"
+   ]
+  },
+  {
+   "slug": "developpement-web-mobile",
+   "pole": "innover",
+   "title": "Développement web & mobile",
+   "summary": "Création de sites web, applications mobiles et solutions digitales sur mesure pour répondre à vos besoins et améliorer votre présence en ligne.",
+   "features": [
+    "Sites web institutionnels et vitrines",
+    "Applications web métiers",
+    "Applications mobiles Android et iOS",
+    "Intégration de solutions e-commerce",
+    "Plateformes collaboratives",
+    "Interfaces intuitives et responsives"
+   ]
+  },
+  {
+   "slug": "integration-de-paiement",
+   "pole": "innover",
+   "title": "Intégration de paiement",
+   "summary": "Intégration de solutions de paiement mobile et en ligne (Orange Money, MTN MoMo, Wave, etc.) pour faciliter vos transactions commerciales.",
+   "features": [
+    "Intégration des API de paiement mobile",
+    "Solutions multi-opérateurs (Orange, MTN, Wave)",
+    "Passerelles de paiement sécurisées",
+    "Transactions en temps réel",
+    "Tableau de bord de suivi des paiements",
+    "Réconciliation automatique"
+   ]
+  },
+  {
+   "slug": "gestion-de-bases-de-donnees",
+   "pole": "innover",
+   "title": "Gestion de bases de données",
+   "summary": "Conception, optimisation et maintenance de bases de données pour une gestion efficace de vos informations critiques.",
+   "features": [
+    "Conception de schémas de bases de données",
+    "Migration et conversion de données",
+    "Optimisation des performances",
+    "Sécurisation des accès et des données",
+    "Sauvegarde et restauration",
+    "Maintenance et support technique"
+   ]
+  },
+  {
+   "slug": "conseil-et-accompagnement",
+   "pole": "transformer",
+   "title": "Conseil et accompagnement",
+   "summary": "Accompagnement stratégique et opérationnel dans votre transformation digitale pour optimiser vos processus et garantir le succès de vos projets.",
+   "features": [
+    "Audit et diagnostic digital",
+    "Élaboration de stratégie et feuilles de route",
+    "Optimisation des processus métiers",
+    "Suivi de projets et reporting régulier",
+    "Veille technologique et innovation",
+    "Transfert de compétences"
+   ]
+  },
+  {
+   "slug": "securite-informatique",
+   "pole": "transformer",
+   "title": "Sécurité informatique",
+   "summary": "Audit, protection et sécurisation de vos systèmes d'information contre les menaces informatiques et les cyberattaques.",
+   "features": [
+    "Audit de sécurité et tests d'intrusion",
+    "Mise en place de solutions de protection",
+    "Gestion des accès et des identités",
+    "Sécurisation des réseaux et des données",
+    "Formation à la cybersécurité",
+    "Plan de continuité d'activité"
+   ]
+  },
+  {
+   "slug": "formation",
+   "pole": "transformer",
+   "title": "Formation",
+   "summary": "Renforcement des capacités numériques de vos équipes pour une meilleure maîtrise des outils digitaux et des nouvelles technologies.",
+   "features": [
+    "Formation aux outils bureautiques",
+    "Initiation au développement web",
+    "Formation à la cybersécurité",
+    "Ateliers sur les technologies cloud",
+    "Formations sur mesure",
+    "Accompagnement post-formation"
+   ]
+  },
+  {
+   "slug": "gestion-social-media",
+   "pole": "transformer",
+   "title": "Gestion social média",
+   "summary": "Gestion professionnelle de vos réseaux sociaux pour renforcer votre présence en ligne, engager votre audience et développer votre communauté.",
+   "features": [
+    "Création et optimisation de profils sociaux",
+    "Planification et publication de contenus",
+    "Campagnes publicitaires",
+    "Analyse des performances et reporting",
+    "Veille concurrentielle et sectorielle",
+    "Gestion de communauté et modération"
+   ]
+  }
+ ],
+ "solutions": [
+  {
+   "slug": "plateformes-web-metiers",
+   "title": "Plateformes web métiers",
+   "summary": "Solutions adaptées aux secteurs de l'éducation, santé, finance, coworking, e-commerce et autres domaines spécifiques.",
+   "tags": [
+    "Interface intuitive",
+    "Personnalisation avancée",
+    "Support 24/7"
+   ]
+  },
+  {
+   "slug": "systemes-de-gestion-integree",
+   "title": "Systèmes de gestion intégrée",
+   "summary": "ERP et CRM personnalisés pour optimiser vos processus métiers et centraliser vos données.",
+   "tags": [
+    "Centralisation des données",
+    "Automatisation",
+    "Rapports avancés"
+   ]
+  },
+  {
+   "slug": "applications-mobiles",
+   "title": "Applications mobiles",
+   "summary": "Applications pour la collecte de données, la gestion de vos activités sur le terrain et l'engagement client.",
+   "tags": [
+    "Mode hors-ligne",
+    "Synchronisation",
+    "Notifications push"
+   ]
+  },
+  {
+   "slug": "modules-de-paiement-mobile",
+   "title": "Modules de paiement mobile",
+   "summary": "Intégration multi-opérateurs : Orange Money, MTN MoMo, Wave et autres solutions de paiement locales.",
+   "tags": [
+    "Multi-opérateurs",
+    "Temps réel",
+    "Réconciliation auto"
+   ]
+  },
+  {
+   "slug": "solutions-secteur-educatif",
+   "title": "Solutions secteur éducatif",
+   "summary": "Plateformes de gestion scolaire, systèmes d'apprentissage en ligne et outils pédagogiques numériques.",
+   "tags": [
+    "E-learning",
+    "Gestion scolaire",
+    "Suivi progression"
+   ]
+  },
+  {
+   "slug": "solutions-pour-entreprises",
+   "title": "Solutions pour entreprises",
+   "summary": "Outils de productivité, gestion documentaire et automatisation des processus d'entreprise.",
+   "tags": [
+    "Productivité",
+    "Collaboration",
+    "Automatisation"
+   ]
+  },
+  {
+   "slug": "solutions-e-commerce",
+   "title": "Solutions e-commerce",
+   "summary": "Boutiques en ligne, marketplaces et systèmes de gestion des commandes et livraisons.",
+   "tags": [
+    "Boutique en ligne",
+    "Gestion stock",
+    "Analytics"
+   ]
+  },
+  {
+   "slug": "solutions-pour-ong",
+   "title": "Solutions pour ONG",
+   "summary": "Outils de suivi de projets, gestion des bénéficiaires et reporting pour organisations à but non lucratif.",
+   "tags": [
+    "Suivi projets",
+    "Gestion bénéficiaires",
+    "Reporting"
+   ]
+  }
+ ],
+ "projects": [
+  {
+   "slug": "installation-videosurveillance-saakan-saakan-restaurant",
+   "category": "infra",
+   "tag": "Sécurité & Surveillance",
+   "title": "Installation vidéosurveillance SAAKAN",
+   "client": "SAAKAN Restaurant",
+   "summary": "Système de vidéosurveillance professionnel pour sécuriser les locaux du restaurant SAAKAN au Plateau, Abidjan.",
+   "image_url": "/images/cctv.jpg"
+  },
+  {
+   "slug": "installation-videosurveillance-norima-norima-restaurant",
+   "category": "infra",
+   "tag": "Sécurité & Surveillance",
+   "title": "Installation vidéosurveillance NORIMA",
+   "client": "NORIMA Restaurant",
+   "summary": "Surveillance vidéo haute définition pour le restaurant NORIMA à Cocody, avec monitoring en temps réel.",
+   "image_url": "/images/cctv.jpg"
+  },
+  {
+   "slug": "installation-videosurveillance-puratos-puratos-cote-d-ivoire",
+   "category": "infra",
+   "tag": "Sécurité & Surveillance",
+   "title": "Installation vidéosurveillance Puratos",
+   "client": "Puratos Côte d'Ivoire",
+   "summary": "Système de vidéosurveillance avancé pour sécuriser les installations industrielles de Puratos Côte d'Ivoire.",
+   "image_url": "/images/cctv.jpg"
+  },
+  {
+   "slug": "infrastructure-it-copaci-copaci",
+   "category": "infra",
+   "tag": "Infrastructure Réseau",
+   "title": "Infrastructure IT COPACI",
+   "client": "COPACI",
+   "summary": "Câblage réseau complet, serveur d'application et pare-feu pour l'infrastructure IT de COPACI à Yopougon.",
+   "image_url": "/images/tech.jpg"
+  },
+  {
+   "slug": "cablage-reseau-puratos-ci-puratos-cote-d-ivoire",
+   "category": "infra",
+   "tag": "Infrastructure Réseau",
+   "title": "Câblage réseau Puratos CI",
+   "client": "Puratos Côte d'Ivoire",
+   "summary": "Câblage réseau complet pour optimiser la connectivité et les communications internes.",
+   "image_url": "/images/network.jpg"
+  },
+  {
+   "slug": "cablage-reseau-puratos-cacao-puratos-cacao",
+   "category": "infra",
+   "tag": "Infrastructure Réseau",
+   "title": "Câblage réseau Puratos Cacao",
+   "client": "Puratos Cacao",
+   "summary": "Infrastructure réseau moderne et performante pour les installations de Puratos Cacao.",
+   "image_url": "/images/network.jpg"
+  },
+  {
+   "slug": "infrastructure-neskao-neskao",
+   "category": "infra",
+   "tag": "Infrastructure & Sécurité",
+   "title": "Infrastructure NESKAO",
+   "client": "NESKAO",
+   "summary": "Fourniture et déploiement d'un serveur d'application et d'un pare-feu à Abidjan.",
+   "image_url": "/images/tech.jpg"
+  },
+  {
+   "slug": "plateforme-de-gestion-paroissiale-diocese-d-abidjan",
+   "category": "web",
+   "tag": "Application Web",
+   "title": "Plateforme de gestion paroissiale",
+   "client": "Diocèse d'Abidjan",
+   "summary": "Gestion des fidèles, des activités, des contributions et des communications.",
+   "image_url": "/images/code.jpg"
+  },
+  {
+   "slug": "portail-institutionnel-uvci-universite-virtuelle-de-cote-d-ivoire",
+   "category": "web",
+   "tag": "Site Web",
+   "title": "Portail institutionnel UVCI",
+   "client": "Université Virtuelle de Côte d'Ivoire",
+   "summary": "Portail institutionnel avec système de gestion de contenu et espace étudiant.",
+   "image_url": "/images/code.jpg"
+  },
+  {
+   "slug": "reservation-de-billets-d-avion-agence-de-voyage-locale",
+   "category": "web",
+   "tag": "Application Web",
+   "title": "Réservation de billets d'avion",
+   "client": "Agence de voyage locale",
+   "summary": "Réservation en ligne avec gestion des disponibilités, paiements et tableau de bord administratif.",
+   "image_url": "/images/code.jpg"
+  },
+  {
+   "slug": "plateforme-e-commerce-distributeur-de-produits-locaux",
+   "category": "web",
+   "tag": "Application Web",
+   "title": "Plateforme e-commerce",
+   "client": "Distributeur de produits locaux",
+   "summary": "Vente de produits locaux avec paiements mobiles et gestion des livraisons.",
+   "image_url": "/images/code.jpg"
+  },
+  {
+   "slug": "systeme-de-gestion-scolaire-reseau-d-ecoles-privees",
+   "category": "web",
+   "tag": "Application Web",
+   "title": "Système de gestion scolaire",
+   "client": "Réseau d'écoles privées",
+   "summary": "Gestion des élèves, des enseignants, des notes et des paiements.",
+   "image_url": "/images/code.jpg"
+  },
+  {
+   "slug": "application-de-gestion-rh-entreprise-industrielle",
+   "category": "mobile",
+   "tag": "Web & Mobile",
+   "title": "Application de gestion RH",
+   "client": "Entreprise industrielle",
+   "summary": "Gestion des congés, des performances et de la paie.",
+   "image_url": "/images/pay.jpg"
+  },
+  {
+   "slug": "application-de-suivi-de-projets-ong-internationale",
+   "category": "mobile",
+   "tag": "Application Mobile",
+   "title": "Application de suivi de projets",
+   "client": "ONG internationale",
+   "summary": "Suivi de projets de développement sur le terrain, avec collecte de données hors ligne.",
+   "image_url": "/images/pay.jpg"
+  },
+  {
+   "slug": "application-de-livraison-startup-locale",
+   "category": "mobile",
+   "tag": "Application Mobile",
+   "title": "Application de livraison",
+   "client": "Startup locale",
+   "summary": "Livraison de repas et de courses, avec suivi en temps réel et paiements mobiles.",
+   "image_url": "/images/pay.jpg"
+  }
+ ],
+ "team": [
+  {
+   "name": "Pétronil DAGA",
+   "role": "Manager Général",
+   "bio": "Professionnel expérimenté de la gestion et du management, il dirige AITECH avec vision et excellence et assure le développement stratégique de l'entreprise."
+  },
+  {
+   "name": "Estelle BINI épouse DAGA",
+   "role": "Responsable Administrative et Financière",
+   "bio": "Ingénieure de formation, elle supervise l'ensemble des opérations administratives et financières d'AITECH et la gestion des ressources."
+  },
+  {
+   "name": "Koffi Alexis KONAN",
+   "role": "Responsable Technique",
+   "bio": "Technicien qualifié, il assure le support technique et la maintenance des systèmes, et garantit le bon fonctionnement des infrastructures des clients."
+  },
+  {
+   "name": "M. SANGARÉ",
+   "role": "Développeur Senior",
+   "bio": ""
+  }
+ ],
+ "products": [
+  {
+   "slug": "audit-securite-starter",
+   "category": "Cybersécurité",
+   "name": "Audit Sécurité (Starter)",
+   "description": "Évaluation rapide des risques et recommandations de sécurité prioritaires.",
+   "price_xof": 150000
+  },
+  {
+   "slug": "identite-visuelle",
+   "category": "Design",
+   "name": "Identité Visuelle",
+   "description": "Logo + charte graphique pour renforcer votre image de marque.",
+   "price_xof": 100000
+  },
+  {
+   "slug": "maintenance-it-mensuel",
+   "category": "Infogérance",
+   "name": "Maintenance IT (Mensuel)",
+   "description": "Suivi et assistance IT pour garder vos systèmes stables et performants.",
+   "price_xof": 50000
+  },
+  {
+   "slug": "pack-landing-page",
+   "category": "Web",
+   "name": "Pack Landing Page",
+   "description": "Une landing page orientée conversion pour vos campagnes marketing.",
+   "price_xof": 80000
+  },
+  {
+   "slug": "pack-site-vitrine",
+   "category": "Web",
+   "name": "Pack Site Vitrine",
+   "description": "Un site vitrine moderne pour présenter votre activité, optimisé pour mobile et référencement.",
+   "price_xof": 120000
+  },
+  {
+   "slug": "prototype-app-mobile",
+   "category": "Mobile",
+   "name": "Prototype App Mobile",
+   "description": "Un prototype fonctionnel pour valider votre idée avant le développement complet.",
+   "price_xof": 200000
+  }
+ ],
+ "posts": [
+  {
+   "slug": "les-tendances-technologiques-a-suivre-en-2025",
+   "category": "Tendances",
+   "date": "15 mai 2025",
+   "author": "Kouadio Kouassi",
+   "title": "Les tendances technologiques à suivre en 2025",
+   "excerpt": "Les technologies émergentes qui vont transformer le paysage numérique africain dans les années à venir."
+  },
+  {
+   "slug": "comment-securiser-efficacement-votre-systeme-d-information",
+   "category": "Cybersécurité",
+   "date": "28 avril 2025",
+   "author": "Mamadou Touré",
+   "title": "Comment sécuriser efficacement votre système d'information",
+   "excerpt": "Les meilleures pratiques pour protéger vos données et vos infrastructures contre les cybermenaces."
+  },
+  {
+   "slug": "l-importance-du-mobile-money-dans-le-developpement-du-e-commerce-en-afrique",
+   "category": "E-commerce",
+   "date": "10 avril 2025",
+   "author": "Amoin Koffi",
+   "title": "L'importance du mobile money dans le développement du e-commerce en Afrique",
+   "excerpt": "Comment les solutions de paiement mobile révolutionnent le commerce électronique sur le continent."
+  },
+  {
+   "slug": "les-avantages-d-une-application-web-progressive-pour-votre-entreprise",
+   "category": "Développement Web",
+   "date": "2 avril 2025",
+   "author": "Kouadio Kouassi",
+   "title": "Les avantages d'une application web progressive pour votre entreprise",
+   "excerpt": "Pourquoi les PWA représentent l'avenir du développement web et ce qu'elles apportent à votre activité."
+  },
+  {
+   "slug": "comment-choisir-le-bon-erp-pour-votre-entreprise",
+   "category": "Gestion d'entreprise",
+   "date": "20 mars 2025",
+   "author": "Amoin Koffi",
+   "title": "Comment choisir le bon ERP pour votre entreprise",
+   "excerpt": "Guide pratique pour sélectionner et mettre en place un système de gestion intégrée adapté à vos besoins."
+  },
+  {
+   "slug": "l-intelligence-artificielle-au-service-des-entreprises-africaines",
+   "category": "Intelligence Artificielle",
+   "date": "5 mars 2025",
+   "author": "Mamadou Touré",
+   "title": "L'intelligence artificielle au service des entreprises africaines",
+   "excerpt": "Comment les technologies d'IA peuvent résoudre des problématiques spécifiques au marché africain."
+  }
+ ],
+ "poll": [
+  {
+   "id": "performance",
+   "label": "Performance des systèmes",
+   "title": "Des systèmes rapides et stables",
+   "text": "Nous prenons en charge votre parc informatique au quotidien pour éviter les lenteurs et les pannes.",
+   "services": [
+    "Infogérance et maintenance IT",
+    "Serveurs d’application",
+    "Gestion de bases de données"
+   ]
+  },
+  {
+   "id": "securite",
+   "label": "Sécurité des données",
+   "title": "Vos données et vos locaux protégés",
+   "text": "Nous auditons, protégeons et sécurisons vos systèmes d’information contre les menaces informatiques.",
+   "services": [
+    "Audit et sécurité informatique",
+    "Pare-feu et protection réseau",
+    "Vidéosurveillance et contrôle d’accès"
+   ]
+  },
+  {
+   "id": "disponibilite",
+   "label": "Disponibilité des services",
+   "title": "Des services toujours accessibles",
+   "text": "Nous bâtissons une infrastructure fiable pour que vos applications et vos données restent disponibles.",
+   "services": [
+    "Hébergement web & cloud",
+    "Câblage réseau et serveurs",
+    "Support technique 24/7"
+   ]
+  },
+  {
+   "id": "competences",
+   "label": "Compétences internes",
+   "title": "Des équipes qui maîtrisent leurs outils",
+   "text": "Nous renforçons les capacités numériques de vos équipes et vous accompagnons dans la durée.",
+   "services": [
+    "Formation",
+    "Accompagnement personnalisé",
+    "Conseil en transformation digitale"
+   ]
+  },
+  {
+   "id": "croissance",
+   "label": "Croissance & innovation",
+   "title": "Le numérique comme levier de croissance",
+   "text": "Nous créons les outils digitaux qui développent votre activité et votre présence en ligne.",
+   "services": [
+    "Développement web & mobile",
+    "Paiement mobile : Orange Money, MTN MoMo, Wave",
+    "Gestion des réseaux sociaux"
+   ]
+  }
+ ],
+ "steps": [
+  {
+   "title": "Audit",
+   "body": "Nous analysons l'existant et vos enjeux métiers."
+  },
+  {
+   "title": "Conception",
+   "body": "Nous proposons une solution chiffrée, adaptée à votre contexte."
+  },
+  {
+   "title": "Déploiement",
+   "body": "Nous installons, développons et mettons en service par étapes."
+  },
+  {
+   "title": "Accompagnement",
+   "body": "Nous formons vos équipes et assurons la maintenance."
+  }
+ ],
+ "values": [
+  {
+   "title": "Innovation",
+   "body": "Nous recherchons constamment de nouvelles solutions pour répondre aux défis numériques et anticiper les évolutions technologiques."
+  },
+  {
+   "title": "Intégrité",
+   "body": "Nous agissons avec honnêteté et transparence dans toutes nos relations professionnelles et nos engagements envers nos clients."
+  },
+  {
+   "title": "Excellence",
+   "body": "Nous visons l'excellence dans tous nos projets et services, avec un souci constant de la qualité et de la satisfaction client."
+  },
+  {
+   "title": "Proximité client",
+   "body": "Nous privilégions une relation de confiance et d'écoute avec nos clients pour mieux comprendre leurs besoins spécifiques."
+  }
+ ],
+ "sectors": [
+  {
+   "title": "Éducation",
+   "body": "Gestion scolaire, apprentissage en ligne, outils pédagogiques."
+  },
+  {
+   "title": "Entreprises",
+   "body": "ERP, CRM, gestion documentaire, automatisation des processus."
+  },
+  {
+   "title": "E-commerce",
+   "body": "Boutiques en ligne, marketplaces, commandes et livraisons."
+  },
+  {
+   "title": "ONG",
+   "body": "Suivi de projets, gestion des bénéficiaires, reporting."
+  },
+  {
+   "title": "Finance & paiement",
+   "body": "Modules de paiement mobile multi-opérateurs."
+  },
+  {
+   "title": "Terrain & santé",
+   "body": "Applications mobiles de collecte de données et de suivi d'activité."
+  }
+ ],
+ "settings": {
+  "phones": [
+   "+225 07 48 96 02 31",
+   "+225 05 95 21 58 21"
+  ],
+  "email": "infos@aitech-ci.com",
+  "address": "Cocody, Abidjan, Côte d'Ivoire",
+  "hours": [
+   [
+    "Lundi – Vendredi",
+    "08:00 – 18:00"
+   ],
+   [
+    "Samedi",
+    "09:00 – 13:00"
+   ],
+   [
+    "Dimanche",
+    "Fermé"
+   ]
+  ]
+ }
+}
