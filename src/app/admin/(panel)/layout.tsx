@@ -26,7 +26,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <Link href="/admin/contenus/products">Produits</Link>
         <span className="grp">Contenus</span>
         {content.map(([key, def]) => <Link key={key} href={`/admin/contenus/${key}`}>{def.label}</Link>)}
-        <form action={signOut} style={{ marginTop: 'auto' }}><button className="btn small dark" style={{ background: '#45484D' }} type="submit">Se déconnecter</button></form>
+        <form action={signOut} style={{ marginTop: 'auto' }}><button className="btn small dark" type="submit">Se déconnecter</button></form>
       </aside>
       <main>{children}</main>
     </div>

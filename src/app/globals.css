@@ -103,10 +103,21 @@ footer strong{color:#fff;font-size:14px}
 footer .end{border-top:1px solid #45484D;margin-top:40px;padding-top:24px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px;font-size:14px}
 /* backoffice */
 .admin{display:grid;grid-template-columns:240px 1fr;min-height:100vh;background:#fff}
-.admin aside{background:var(--ink);color:#fff;padding:24px 16px;display:flex;flex-direction:column;gap:4px}
-.admin aside a{padding:10px 12px;border-radius:8px;text-decoration:none;color:#D9DBDF;font-weight:600}
-.admin aside a:hover{background:#45484D;color:#fff}
-.admin aside .grp{margin-top:18px;padding:0 12px;font-size:13px;color:#9a9da3}
+.admin aside{background:linear-gradient(180deg,#2F3032 0%,#2F3032 55%,#1F4E8C 100%);color:#fff;padding:24px 16px;display:flex;flex-direction:column;gap:4px;border-top:5px solid var(--azure)}
+.admin aside a{padding:10px 12px;border-radius:8px;text-decoration:none;color:#D9DBDF;font-weight:600;border-left:3px solid transparent}
+.admin aside a:hover,.admin aside a:focus-visible{background:rgba(49,140,247,.18);color:#fff;border-left-color:var(--azure)}
+.admin aside .grp{margin-top:18px;padding:0 12px;font-size:13px;color:#9CC7FB}
+.admin aside .btn{background:var(--azure);color:var(--azure-ink)}
+.admin main h1{padding-bottom:12px;border-bottom:4px solid var(--azure);align-self:flex-start}
+.admin main .col{border-top-color:var(--azure)}
+.admin main details[open]>summary{color:#1F4E8C}
+.admin main .table th{color:#1F4E8C;background:#EEF5FE}
+.imgfield-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.imgfield-row img,.imgfield-empty{width:160px;height:110px;border-radius:12px;object-fit:cover;background:#EEF5FE;border:1px solid var(--line)}
+.imgfield-empty{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px}
+.imgfield input[type=file]{font:500 15px Urbanist,sans-serif;max-width:100%}
+.imgfield-remove{align-self:flex-start;min-height:40px;background:none;border:0;padding:0;color:#7A1F1A;font:600 15px Urbanist,sans-serif;cursor:pointer}
+.imgfield-err{color:#7A1F1A;font-weight:600}
 .admin main{padding:32px;min-width:0}
 .table{width:100%;border-collapse:collapse;font-size:15px}
 .table th,.table td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}

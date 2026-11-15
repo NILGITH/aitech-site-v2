@@ -1,13 +1,15 @@
 import { notFound } from 'next/navigation'
 import { deleteRow, saveRow } from '@/app/actions'
 import { sessionClient } from '@/lib/supabase'
+import ImageField from '@/components/ImageField'
 import { TABLES, type Field, type TableDef } from '@/lib/tables'
 
 type Row = Record<string, unknown>
 
-function Input({ field, row, uid }: { field: Field; row?: Row; uid: string }) {
+function Input({ field, row, uid, table }: { field: Field; row?: Row; uid: string; table: string }) {
   const id = `${uid}-${field.name}`
   const v = row?.[field.name]
+  if (field.type === 'image') return <ImageField id={id} name={field.name} label={field.label} value={v == null ? '' : String(v)} folder={table} />
   if (field.type === 'bool') {
     return <label htmlFor={id} className="row" style={{ gap: 8, minHeight: 44 }}><input id={id} type="checkbox" name={field.name} defaultChecked={row ? Boolean(v) : true} style={{ width: 22, height: 22 }} />{field.label}</label>
   }
@@ -31,7 +33,7 @@ function RowForm({ table, def, row }: { table: string; def: TableDef; row?: Row 
       <form action={saveRow} className="stack" style={{ gap: 14 }}>
         <input type="hidden" name="_table" value={table} />
         <input type="hidden" name="_id" value={row ? String(row[def.key]) : ''} />
-        {def.fields.map((f) => <Input key={f.name} field={f} row={row} uid={uid} />)}
+        {def.fields.map((f) => <Input key={f.name} field={f} row={row} uid={uid} table={table} />)}
         <button className="btn small" type="submit" style={{ alignSelf: 'flex-start' }}>{row ? 'Enregistrer' : 'Ajouter'}</button>
       </form>
       {row && (

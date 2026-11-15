@@ -1,4 +1,4 @@
-export type Field = { name: string; label: string; type: 'text' | 'textarea' | 'number' | 'bool' | 'list' | 'select' | 'json'; required?: boolean; options?: string[] }
+export type Field = { name: string; label: string; type: 'text' | 'textarea' | 'number' | 'bool' | 'list' | 'select' | 'json' | 'image'; required?: boolean; options?: string[] }
 export type TableDef = { label: string; key: string; order: string; title: string; fields: Field[] }
 
 const pos: Field = { name: 'position', label: 'Ordre', type: 'number' }
@@ -10,7 +10,7 @@ export const TABLES: Record<string, TableDef> = {
     { name: 'tab_label', label: "Nom de l'onglet", type: 'text', required: true },
     { name: 'title', label: 'Titre', type: 'text', required: true },
     { name: 'body', label: 'Texte', type: 'textarea', required: true },
-    { name: 'image_url', label: "Adresse de l'image", type: 'text' }, pos, pub] },
+    { name: 'image_url', label: 'Image', type: 'image' }, pos, pub] },
   services: { label: 'Services', key: 'id', order: 'position', title: 'title', fields: [
     { name: 'title', label: 'Titre', type: 'text', required: true },
     { name: 'slug', label: 'Identifiant (sans espace)', type: 'text', required: true },
@@ -29,12 +29,12 @@ export const TABLES: Record<string, TableDef> = {
     { name: 'category', label: 'Catégorie', type: 'select', options: ['infra', 'web', 'mobile'], required: true },
     { name: 'tag', label: 'Étiquette affichée', type: 'text', required: true },
     { name: 'summary', label: 'Description', type: 'textarea', required: true },
-    { name: 'image_url', label: "Adresse de l'image", type: 'text' }, pos, pub] },
+    { name: 'image_url', label: 'Image', type: 'image' }, pos, pub] },
   team_members: { label: 'Équipe', key: 'id', order: 'position', title: 'name', fields: [
     { name: 'name', label: 'Nom', type: 'text', required: true },
     { name: 'role', label: 'Fonction', type: 'text', required: true },
     { name: 'bio', label: 'Biographie', type: 'textarea' },
-    { name: 'photo_url', label: 'Adresse de la photo', type: 'text' }, pos, pub] },
+    { name: 'photo_url', label: 'Photo', type: 'image' }, pos, pub] },
   posts: { label: 'Articles du blog', key: 'id', order: 'published_at', title: 'title', fields: [
     { name: 'title', label: 'Titre', type: 'text', required: true },
     { name: 'slug', label: 'Identifiant (sans espace)', type: 'text', required: true },
@@ -42,7 +42,7 @@ export const TABLES: Record<string, TableDef> = {
     { name: 'author', label: 'Auteur', type: 'text' },
     { name: 'excerpt', label: 'Résumé', type: 'textarea', required: true },
     { name: 'body', label: "Texte de l'article", type: 'textarea' },
-    { name: 'cover_url', label: "Adresse de l'image", type: 'text' },
+    { name: 'cover_url', label: 'Image de couverture', type: 'image' },
     { name: 'published_at', label: 'Date de publication (AAAA-MM-JJ)', type: 'text' }, pub] },
   faqs: { label: 'Chatbot : questions fréquentes', key: 'id', order: 'position', title: 'question', fields: [
     { name: 'question', label: 'Question', type: 'text', required: true },
