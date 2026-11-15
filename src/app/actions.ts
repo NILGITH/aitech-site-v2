@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import seed from '@/lib/seed.json'
-import { publicClient, serviceClient, sessionClient } from '@/lib/supabase'
+import { publicClient, sessionClient } from '@/lib/supabase'
 import { TABLES } from '@/lib/tables'
 
 export type FormState = { ok: boolean; message: string }
@@ -36,18 +36,13 @@ export async function createOrder(_: FormState, f: FormData): Promise<FormState>
   const slugs = Object.keys(cart).filter((s) => cart[s] > 0)
   if (slugs.length === 0) return { ok: false, message: 'Votre panier est vide.' }
   if (!name || !email || !phone) return { ok: false, message: 'Merci de renseigner votre nom, votre e-mail et votre téléphone.' }
-  const db = serviceClient()
+  const db = publicClient()
   if (!db) return { ok: false, message: NOT_READY }
-  // Les prix sont relus côté serveur : le navigateur n'envoie que les quantités.
-  const { data: products } = await db.from('products').select('id, slug, name, price_xof').in('slug', slugs).eq('active', true)
-  const list = products && products.length > 0 ? products : seed.products.filter((p) => slugs.includes(p.slug)).map((p) => ({ id: null, ...p }))
-  if (list.length === 0) return { ok: false, message: 'Ces produits ne sont plus disponibles.' }
-  const items = list.map((p) => ({ product_id: p.id, name: p.name, unit_price_xof: p.price_xof, quantity: Math.min(20, Math.max(1, Math.floor(cart[p.slug]))) }))
-  const total = items.reduce((s, i) => s + i.unit_price_xof * i.quantity, 0)
-  const reference = 'AIT-' + Date.now().toString(36).toUpperCase()
-  const { data: order, error } = await db.from('orders').insert({ reference, customer_name: name, email, phone, total_xof: total }).select('id').single()
-  if (error || !order) return { ok: false, message: "La commande n'a pas pu être enregistrée. Réessayez dans un instant." }
-  await db.from('order_items').insert(items.map((i) => ({ ...i, order_id: order.id })))
+  // Les prix sont relus dans la base par place_order : le navigateur n'envoie que les quantités.
+  const quantities = Object.fromEntries(slugs.map((k) => [k, String(Math.floor(cart[k]))]))
+  const { data: reference, error } = await db.rpc('place_order', { p_name: name, p_email: email, p_phone: phone, p_cart: quantities })
+  if (error?.message?.includes('empty_cart')) return { ok: false, message: 'Ces produits ne sont plus disponibles.' }
+  if (error || !reference) return { ok: false, message: "La commande n'a pas pu être enregistrée. Réessayez dans un instant." }
   return { ok: true, message: `Commande ${reference} enregistrée. Le paiement en ligne n'est pas encore activé : nous vous contactons pour le règlement.` }
 }
 
