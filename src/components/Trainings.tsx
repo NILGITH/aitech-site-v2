@@ -2,6 +2,7 @@
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import SpamGuard from './SpamGuard'
+import PayButton from './PayButton'
 import { enrollTraining, type FormState } from '@/app/actions'
 import type { Training } from '@/lib/data'
 import { formatXof } from '@/lib/format'
@@ -61,6 +62,7 @@ export function EnrollForm({ slug, title }: { slug: string; title: string }) {
       <div className="field"><label htmlFor="e-msg">Précisions (disponibilités, nombre de participants)</label><textarea id="e-msg" name="message" rows={3} /></div>
       <SpamGuard />
       {state.message && <p role="status" className={state.ok ? 'notice' : 'notice err'}>{state.message}</p>}
+      {state.pay && <PayButton pay={state.pay} />}
       <button className="btn" type="submit" disabled={pending} style={{ alignSelf: 'flex-start' }}>{pending ? 'Envoi…' : "Valider l'inscription"}</button>
     </form>
   )

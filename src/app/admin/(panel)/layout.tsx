@@ -21,6 +21,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <img src="/images/logo-white.png" alt="Aitech" style={{ height: 48, width: 'auto', alignSelf: 'flex-start', marginBottom: 12 }} />
         <Link href="/admin">Tableau de bord</Link>
         <Link href="/admin/devis">Demandes de devis</Link>
+        <Link href="/admin/paiements">Paiements (Kkiapay)</Link>
         <span className="grp">Boutique</span>
         <Link href="/admin/commandes">Commandes</Link>
         <Link href="/admin/contenus/products">Produits</Link>

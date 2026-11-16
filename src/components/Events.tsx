@@ -2,6 +2,7 @@
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
 import SpamGuard from './SpamGuard'
+import PayButton from './PayButton'
 import { registerEvent, type FormState } from '@/app/actions'
 import type { EventItem } from '@/lib/data'
 import { eventDay, eventTime, isPast, priceLabel } from '@/lib/events'
@@ -90,6 +91,7 @@ export function RegisterForm({ e }: { e: EventItem }) {
       <div className="field"><label htmlFor="r-msg">Message (facultatif)</label><textarea id="r-msg" name="message" rows={3} /></div>
       <SpamGuard />
       {state.message && <p role="status" className={state.ok ? 'notice' : 'notice err'}>{state.message}</p>}
+      {state.pay && <PayButton pay={state.pay} />}
       <button className="btn" type="submit" disabled={pending} style={{ alignSelf: 'flex-start' }}>{pending ? 'Envoi…' : 'Réserver ma place'}</button>
     </form>
   )

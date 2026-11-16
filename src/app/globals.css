@@ -260,3 +260,16 @@ footer .end{border-top:1px solid #45484D;margin-top:40px;padding-top:24px;displa
 .facts dt{font-size:14px;color:var(--muted)}
 .facts dd{margin:2px 0 0;font-weight:700;font-size:17px}
 @media (prefers-reduced-motion:reduce){.event,.training{transition:none}.event:hover,.training:hover{transform:none}}
+/* paiement */
+.paybox{display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:18px;background:#EEF5FE;border:1px solid #CFE3FD}
+.paybox .btn{align-self:flex-start}
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr));gap:24px}
+.keys fieldset{border:1px solid var(--line);border-top:4px solid var(--azure);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px;background:#fff;margin:0}
+.keys fieldset.live{border-top-color:var(--coral)}
+.keys legend{font-weight:700;font-size:18px;padding:0 6px}
+.keystate{font-size:14px;color:var(--muted)}
+.keystate b{color:var(--ink);font-family:ui-monospace,monospace}
+.modepick{display:flex;flex-wrap:wrap;gap:12px}
+.modepick label{display:flex;gap:10px;align-items:center;min-height:48px;padding:0 18px;border:2px solid var(--line);border-radius:999px;font-weight:600;cursor:pointer}
+.modepick label:has(input:checked){border-color:var(--azure);background:#EEF5FE}
+.warn{padding:14px 18px;border-radius:14px;background:#FFF4E5;color:#6B3A00;font-weight:600}

@@ -1,5 +1,6 @@
 'use client'
 import SpamGuard from './SpamGuard'
+import PayButton from './PayButton'
 import { useActionState, useState } from 'react'
 import { createOrder, submitQuote, type FormState } from '@/app/actions'
 import { formatXof } from '@/lib/format'
@@ -8,7 +9,7 @@ import type { Product } from '@/lib/data'
 const init: FormState = { ok: false, message: '' }
 function Notice({ state }: { state: FormState }) {
   if (!state.message) return null
-  return <p role="status" className={state.ok ? 'notice' : 'notice err'}>{state.message}</p>
+  return <><p role="status" className={state.ok ? 'notice' : 'notice err'}>{state.message}</p>{state.pay && <PayButton pay={state.pay} />}</>
 }
 
 export function QuoteForm({ challenge }: { challenge?: string }) {
