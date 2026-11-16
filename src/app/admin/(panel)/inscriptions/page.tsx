@@ -1,3 +1,4 @@
+import { requirePerm } from '@/lib/access'
 import { setEnrollmentStatus } from '@/app/actions'
 import { formatXof } from '@/lib/data'
 import { sessionClient } from '@/lib/supabase'
@@ -7,6 +8,7 @@ const LABEL: Record<string, string> = { pending: 'En attente', confirmed: 'Confi
 const BADGE: Record<string, string> = { pending: 'pending', confirmed: 'in_progress', partial: 'in_progress', paid: 'paid', cancelled: '' }
 
 export default async function Enrollments() {
+  await requirePerm('formations')
   const db = (await sessionClient())!
   const { data } = await db.from('training_enrollments').select('*').order('created_at', { ascending: false }).limit(300)
   return (

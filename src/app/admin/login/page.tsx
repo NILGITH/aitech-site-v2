@@ -16,6 +16,7 @@ export default function Login() {
           <div className="field"><label htmlFor="password">Mot de passe</label><input id="password" name="password" type="password" required autoComplete="current-password" /></div>
           {state.message && <p role="alert" className="notice err">{state.message}</p>}
           <button className="btn" type="submit" disabled={pending}>{pending ? 'Connexion…' : 'Se connecter'}</button>
+          <a href="/admin/mot-de-passe" className="link">Mot de passe oublié ?</a>
         </form>
       </div>
     </main>

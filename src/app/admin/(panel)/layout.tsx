@@ -1,42 +1,47 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { signOut } from '@/app/actions'
-import { sessionClient } from '@/lib/supabase'
+import { can, getAccess, type Perm } from '@/lib/access'
 import { TABLES } from '@/lib/tables'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Backoffice', robots: { index: false } }
 
+type Item = { href: string; label: string; perm?: Perm }
+const GROUPS: { title?: string; items: Item[] }[] = [
+  { items: [{ href: '/admin', label: 'Tableau de bord' }, { href: '/admin/devis', label: 'Demandes de devis', perm: 'devis' }] },
+  { title: 'Boutique', items: [{ href: '/admin/commandes', label: 'Commandes', perm: 'boutique' }, { href: '/admin/contenus/products', label: 'Produits', perm: 'boutique' }] },
+  { title: 'Formations', items: [{ href: '/admin/inscriptions', label: 'Inscriptions', perm: 'formations' }, { href: '/admin/contenus/trainings', label: 'Formations', perm: 'formations' }, { href: '/admin/contenus/training_modules', label: 'Modules', perm: 'formations' }] },
+  { title: 'Événements', items: [{ href: '/admin/participants', label: 'Participants', perm: 'evenements' }, { href: '/admin/contenus/events', label: 'Événements', perm: 'evenements' }] },
+  { title: 'Contenus', items: Object.entries(TABLES).filter(([k]) => !['products', 'trainings', 'training_modules', 'events'].includes(k)).map(([k, d]) => ({ href: `/admin/contenus/${k}`, label: d.label, perm: 'contenus' as Perm })) },
+  { title: 'Paramètres', items: [
+    { href: '/admin/parametres/utilisateurs', label: 'Utilisateurs', perm: 'utilisateurs' },
+    { href: '/admin/parametres/profils', label: 'Profils et autorisations', perm: 'utilisateurs' },
+    { href: '/admin/parametres/paiements', label: 'Paiement en ligne', perm: 'parametres' },
+    { href: '/admin/parametres/echeances', label: 'Paiement en plusieurs fois', perm: 'parametres' },
+    { href: '/admin/parametres/notifications', label: 'Notifications', perm: 'parametres' },
+    { href: '/admin/parametres/cles', label: 'Clés et sécurité', perm: 'parametres' },
+  ] },
+]
+
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
-  const db = await sessionClient()
-  if (!db) redirect('/admin/login')
-  const { data } = await db.auth.getUser()
-  if (!data.user) redirect('/admin/login')
-  const { data: isAdmin } = await db.rpc('is_admin')
-  if (!isAdmin) redirect('/admin/login?refus=1')
-  const content = Object.entries(TABLES).filter(([k]) => !['products', 'trainings', 'training_modules', 'events'].includes(k))
+  const a = await getAccess()
+  if (!a) redirect('/admin/login?refus=1')
   return (
     <div className="admin">
       <aside>
-        <img src="/images/logo-white.png" alt="Aitech" style={{ height: 48, width: 'auto', alignSelf: 'flex-start', marginBottom: 12 }} />
-        <Link href="/admin">Tableau de bord</Link>
-        <Link href="/admin/devis">Demandes de devis</Link>
-        <span className="grp">Réglages</span>
-        <Link href="/admin/paiements">Paiements (Kkiapay)</Link>
-        <Link href="/admin/echeances">Paiement en plusieurs fois</Link>
-        <Link href="/admin/notifications">Notifications</Link>
-        <span className="grp">Boutique</span>
-        <Link href="/admin/commandes">Commandes</Link>
-        <Link href="/admin/contenus/products">Produits</Link>
-        <span className="grp">Formations</span>
-        <Link href="/admin/inscriptions">Inscriptions</Link>
-        <Link href="/admin/contenus/trainings">Formations</Link>
-        <Link href="/admin/contenus/training_modules">Modules</Link>
-        <span className="grp">Événements</span>
-        <Link href="/admin/participants">Participants</Link>
-        <Link href="/admin/contenus/events">Événements</Link>
-        <span className="grp">Contenus</span>
-        {content.map(([key, def]) => <Link key={key} href={`/admin/contenus/${key}`}>{def.label}</Link>)}
+        <img src="/images/logo-white.png" alt="Aitech" style={{ height: 48, width: 'auto', alignSelf: 'flex-start', marginBottom: 6 }} />
+        <Link href="/admin/profil" className="who"><strong>{a.full_name || a.email}</strong><span>{a.role} · Mon profil</span></Link>
+        {GROUPS.map((g, i) => {
+          const items = g.items.filter((it) => !it.perm || can(a, it.perm))
+          if (items.length === 0) return null
+          return (
+            <div key={i} style={{ display: 'contents' }}>
+              {g.title && (g.title === 'Paramètres' ? <Link href="/admin/parametres" className="grp grp-link">{g.title}</Link> : <span className="grp">{g.title}</span>)}
+              {items.map((it) => <Link key={it.href} href={it.href}>{it.label}</Link>)}
+            </div>
+          )
+        })}
         <form action={signOut} style={{ marginTop: 'auto' }}><button className="btn small dark" type="submit">Se déconnecter</button></form>
       </aside>
       <main>{children}</main>

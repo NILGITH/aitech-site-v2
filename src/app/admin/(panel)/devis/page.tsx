@@ -1,9 +1,11 @@
+import { requirePerm } from '@/lib/access'
 import { setQuoteStatus } from '@/app/actions'
 import { sessionClient } from '@/lib/supabase'
 
 const LABEL: Record<string, string> = { new: 'Nouvelle', in_progress: 'En cours', done: 'Traitée' }
 
 export default async function Quotes() {
+  await requirePerm('devis')
   const db = (await sessionClient())!
   const { data } = await db.from('quote_requests').select('*').order('created_at', { ascending: false }).limit(200)
   return (

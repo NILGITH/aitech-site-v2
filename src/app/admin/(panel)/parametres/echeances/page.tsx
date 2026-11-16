@@ -1,7 +1,9 @@
+import { requirePerm } from '@/lib/access'
 import { sessionClient } from '@/lib/supabase'
 import RulesForm, { type Rule } from './RulesForm'
 
 export default async function Installments() {
+  await requirePerm('parametres')
   const db = (await sessionClient())!
   const { data } = await db.from('installment_rules').select('*')
   const rules = Object.fromEntries((data ?? []).map((r) => [r.kind, r])) as Record<string, Rule>

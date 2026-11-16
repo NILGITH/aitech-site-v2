@@ -4,8 +4,11 @@ import { redirect } from 'next/navigation'
 import seed from '@/lib/seed.json'
 import { publicClient, sessionClient } from '@/lib/supabase'
 import { TABLES } from '@/lib/tables'
+import { permForTable, type Perm } from '@/lib/access'
 import { accessHash, accessToken, activeKeys, decrypt, encrypt, encryptionReady, verifyTransaction, type Mode, type PaymentRow } from '@/lib/payment'
 import { fcfa, loadConfig, notify, payLink, sendEmail, sendWhatsApp } from '@/lib/notify'
+import { SITE_URL } from '@/lib/site'
+import { createHash, randomBytes } from 'node:crypto'
 
 export type Installment = { amount: number; due: string }
 export type PlanOption = { n: number; plan: Installment[] }
@@ -112,13 +115,13 @@ export async function createOrder(_: FormState, f: FormData): Promise<FormState>
 }
 
 // ---------- Backoffice
-async function requireAdmin() {
+async function requireAdmin(perm?: Perm) {
   const db = await sessionClient()
   if (!db) redirect('/admin/login')
   const { data } = await db.auth.getUser()
   if (!data.user) redirect('/admin/login')
-  const { data: ok } = await db.rpc('is_admin')
-  if (!ok) redirect('/admin/login?refus=1')
+  const { data: ok } = await db.rpc(perm ? 'has_perm' : 'is_admin', perm ? { p: perm } : {})
+  if (!ok) redirect(perm ? `/admin?refus=${perm}` : '/admin/login?refus=1')
   return db
 }
 
@@ -226,7 +229,7 @@ export async function lookupPayment(_: FormState, f: FormData): Promise<FormStat
 
 /** Backoffice : enregistre un paiement Kkiapay que le client n'a pas pu finaliser sur le site (page fermée trop tôt). */
 export async function adminVerifyPayment(_: FormState, f: FormData): Promise<FormState> {
-  await requireAdmin()
+  await requireAdmin('parametres')
   const reference = str(f, 'reference').toUpperCase(), tx = str(f, 'transaction')
   const kind = KIND_OF[reference.slice(0, 3)]
   if (!kind) return { ok: false, message: 'Référence non reconnue (AIT-, FOR- ou EVT-).' }
@@ -235,7 +238,7 @@ export async function adminVerifyPayment(_: FormState, f: FormData): Promise<For
 
 /** Backoffice : enregistre les réglages Kkiapay. Les clés privées et secrètes sont chiffrées avant d'être stockées. */
 export async function savePaymentSettings(_: FormState, f: FormData): Promise<FormState> {
-  const db = await requireAdmin()
+  const db = await requireAdmin('parametres')
   if (!encryptionReady()) return { ok: false, message: "La clé de chiffrement PAYMENT_ENCRYPTION_KEY n'est pas configurée dans Vercel : aucune clé n'a été enregistrée." }
   const { data: current } = await db.from('payment_settings').select('*').eq('id', 1).single()
   const row = (current ?? {}) as Partial<PaymentRow>
@@ -261,13 +264,13 @@ export async function savePaymentSettings(_: FormState, f: FormData): Promise<Fo
   }
   const { error } = await db.from('payment_settings').update(update).eq('id', 1)
   if (error) return { ok: false, message: "L'enregistrement a échoué. Réessayez." }
-  revalidatePath('/admin/paiements')
+  revalidatePath('/admin/parametres/paiements')
   return { ok: true, message: `Réglages enregistrés. Paiement en ligne ${merged.enabled ? `activé en mode ${mode === 'live' ? 'production' : 'sandbox (test)'}` : 'désactivé'}.` }
 }
 
 /** Backoffice : règles du paiement en plusieurs fois, par module. */
 export async function saveInstallmentRules(_: FormState, f: FormData): Promise<FormState> {
-  const db = await requireAdmin()
+  const db = await requireAdmin('parametres')
   for (const kind of ['order', 'training', 'event']) {
     const n = (k: string, d: number) => { const v = Number(str(f, `${kind}_${k}`)); return Number.isFinite(v) && str(f, `${kind}_${k}`) !== '' ? Math.round(v) : d }
     const row = {
@@ -278,13 +281,13 @@ export async function saveInstallmentRules(_: FormState, f: FormData): Promise<F
     const { error } = await db.from('installment_rules').update(row).eq('kind', kind)
     if (error) return { ok: false, message: "L'enregistrement a échoué. Réessayez." }
   }
-  revalidatePath('/admin/paiements')
+  revalidatePath('/admin/parametres/echeances')
   return { ok: true, message: 'Règles du paiement en plusieurs fois enregistrées. Elles s’appliquent aux nouvelles commandes et inscriptions.' }
 }
 
 /** Backoffice : réglages des notifications. Les clés Resend et Kapso sont chiffrées comme celles de Kkiapay. */
 export async function saveNotificationSettings(_: FormState, f: FormData): Promise<FormState> {
-  const db = await requireAdmin()
+  const db = await requireAdmin('parametres')
   if (!encryptionReady()) return { ok: false, message: "La clé de chiffrement PAYMENT_ENCRYPTION_KEY n'est pas configurée dans Vercel." }
   const update: Record<string, unknown> = {
     email_enabled: f.get('email_enabled') === 'on', email_from: str(f, 'email_from') || null, email_reply_to: str(f, 'email_reply_to') || null, admin_emails: str(f, 'admin_emails') || null,
@@ -300,13 +303,13 @@ export async function saveNotificationSettings(_: FormState, f: FormData): Promi
   if (update.email_from && !/^(.+<)?[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+>?$/.test(String(update.email_from))) return { ok: false, message: 'Adresse d’expédition non valide. Exemple : AITECH <notifications@aitech-ci.com>' }
   const { error } = await db.from('notification_settings').update(update).eq('id', 1)
   if (error) return { ok: false, message: "L'enregistrement a échoué. Réessayez." }
-  revalidatePath('/admin/notifications')
+  revalidatePath('/admin/parametres/notifications')
   return { ok: true, message: 'Réglages des notifications enregistrés.' }
 }
 
 /** Backoffice : envoie un message de test sur un canal. */
 export async function sendTestNotification(_: FormState, f: FormData): Promise<FormState> {
-  await requireAdmin()
+  await requireAdmin('parametres')
   const c = await loadConfig()
   if (!c) return { ok: false, message: 'Enregistrez d’abord les réglages.' }
   const to = str(f, 'to'), channel = str(f, 'channel')
@@ -314,8 +317,124 @@ export async function sendTestNotification(_: FormState, f: FormData): Promise<F
   const ok = channel === 'whatsapp'
     ? await sendWhatsApp(c, to, 'équipe AITECH', 'Ceci est un message de test envoyé depuis le backoffice du site AITECH.', 'test')
     : await sendEmail(c, to, 'Test des notifications AITECH', 'Les notifications fonctionnent', ['Ceci est un e-mail de test envoyé depuis le backoffice du site AITECH.'], 'test')
-  revalidatePath('/admin/notifications')
+  revalidatePath('/admin/parametres/notifications')
   return ok ? { ok: true, message: `Message de test envoyé à ${to}.` } : { ok: false, message: 'L’envoi a échoué : le détail de l’erreur est dans le journal ci-dessous. Vérifiez que le canal est activé et la clé renseignée.' }
+}
+
+// ---------- Utilisateurs, profils et autorisations
+
+/** Invite une personne : un lien personnel (valable 7 jours) lui permet de choisir son mot de passe. */
+export async function inviteUser(_: FormState & { link?: string }, f: FormData): Promise<FormState & { link?: string }> {
+  const db = await requireAdmin('utilisateurs')
+  const email = str(f, 'email').toLowerCase(), full_name = str(f, 'full_name'), role_id = str(f, 'role_id')
+  if (!/^\S+@\S+\.\S+$/.test(email) || !role_id) return { ok: false, message: 'Indiquez une adresse e-mail valide et un profil.' }
+  const token = randomBytes(24).toString('base64url')
+  const { data: me } = await db.auth.getUser()
+  const { error } = await db.from('staff_invites').insert({ email, full_name: full_name || null, role_id, token_hash: createHash('sha256').update(token).digest('hex'), invited_by: me.user?.id })
+  if (error) return { ok: false, message: "L'invitation n'a pas pu être créée." }
+  const link = `${SITE_URL}/admin/invitation?jeton=${token}`
+  const c = await loadConfig()
+  const sent = c ? await sendEmail(c, email, 'Votre accès au backoffice AITECH', 'Vous êtes invité au backoffice du site AITECH',
+    [`Bonjour${full_name ? ` ${full_name}` : ''},`, 'Un accès au backoffice du site AITECH a été créé pour vous. Cliquez sur le bouton ci-dessous pour choisir votre mot de passe. Le lien est valable 7 jours.'], 'invite', { label: 'Activer mon accès', url: link }) : false
+  revalidatePath('/admin/parametres/utilisateurs')
+  return sent
+    ? { ok: true, message: `Invitation envoyée par e-mail à ${email}.`, link }
+    : { ok: true, message: `Invitation créée, mais l'e-mail n'a pas pu partir (notifications e-mail désactivées ?). Transmettez ce lien à ${email} :`, link }
+}
+
+export async function cancelInvite(f: FormData) {
+  const db = await requireAdmin('utilisateurs')
+  await db.from('staff_invites').delete().eq('id', str(f, 'id')).is('accepted_at', null)
+  revalidatePath('/admin/parametres/utilisateurs')
+}
+
+/** Modifie le profil ou l'état (actif / suspendu) d'un membre de l'équipe. */
+export async function updateStaff(_: FormState, f: FormData): Promise<FormState> {
+  const db = await requireAdmin('utilisateurs')
+  const { error } = await db.from('admins').update({ role_id: str(f, 'role_id'), active: f.get('active') === 'on', full_name: str(f, 'full_name') || null }).eq('user_id', str(f, 'user_id'))
+  if (error?.message?.includes('self_change')) return { ok: false, message: 'Vous ne pouvez pas modifier votre propre profil ni vous suspendre.' }
+  if (error?.message?.includes('last_super')) return { ok: false, message: 'Il doit rester au moins un super administrateur actif.' }
+  if (error) return { ok: false, message: "La modification n'a pas pu être enregistrée." }
+  revalidatePath('/admin/parametres/utilisateurs')
+  return { ok: true, message: 'Modifications enregistrées.' }
+}
+
+/** Retire l'accès au backoffice (le compte de connexion reste, sans aucun droit). */
+export async function removeStaff(f: FormData) {
+  const db = await requireAdmin('utilisateurs')
+  await db.from('admins').delete().eq('user_id', str(f, 'user_id'))
+  revalidatePath('/admin/parametres/utilisateurs')
+}
+
+/** Crée ou modifie un profil (rôle) et ses autorisations. */
+export async function saveRole(_: FormState, f: FormData): Promise<FormState> {
+  const db = await requireAdmin('utilisateurs')
+  const id = str(f, 'id'), name = str(f, 'name')
+  if (!name) return { ok: false, message: 'Donnez un nom au profil.' }
+  const permissions = f.getAll('perm').map(String).filter((p) => /^[a-z]+$/.test(p))
+  const row = { name, description: str(f, 'description') || null, permissions }
+  const { data: cur } = id ? await db.from('roles').select('is_system').eq('id', id).single() : { data: null }
+  if (cur?.is_system) return { ok: false, message: 'Le profil Super administrateur ne peut pas être modifié.' }
+  const { error } = id ? await db.from('roles').update(row).eq('id', id) : await db.from('roles').insert(row)
+  if (error?.code === '23505') return { ok: false, message: 'Un profil porte déjà ce nom.' }
+  if (error) return { ok: false, message: "Le profil n'a pas pu être enregistré." }
+  revalidatePath('/admin/parametres/profils')
+  return { ok: true, message: id ? 'Profil mis à jour.' : 'Profil créé.' }
+}
+
+export async function deleteRole(_: FormState, f: FormData): Promise<FormState> {
+  const db = await requireAdmin('utilisateurs')
+  const id = str(f, 'id')
+  const { count } = await db.from('admins').select('user_id', { count: 'exact', head: true }).eq('role_id', id)
+  if (count) return { ok: false, message: `Ce profil est attribué à ${count} personne${count > 1 ? 's' : ''} : changez d'abord leur profil.` }
+  const { error } = await db.from('roles').delete().eq('id', id).eq('is_system', false)
+  if (error) return { ok: false, message: "Le profil n'a pas pu être supprimé." }
+  revalidatePath('/admin/parametres/profils')
+  return { ok: true, message: 'Profil supprimé.' }
+}
+
+/** Page d'invitation : la personne choisit son mot de passe ; le compte est créé et relié au profil prévu. */
+export async function acceptInvite(_: FormState, f: FormData): Promise<FormState> {
+  const token = str(f, 'jeton'), password = String(f.get('password') ?? ''), confirm = String(f.get('confirm') ?? '')
+  if (password.length < 10) return { ok: false, message: 'Choisissez un mot de passe d’au moins 10 caractères.' }
+  if (password !== confirm) return { ok: false, message: 'Les deux mots de passe ne sont pas identiques.' }
+  const anon = publicClient(), db = await sessionClient()
+  if (!anon || !db) return { ok: false, message: NOT_READY }
+  const { data, error } = await anon.rpc('claim_invite', { p_token: token })
+  if (error?.message?.includes('already_user')) return { ok: false, message: 'Un compte existe déjà avec cette adresse : connectez-vous directement, ou demandez à un administrateur de vous redonner l’accès.' }
+  if (error || !data) return { ok: false, message: 'Ce lien d’invitation n’est plus valable. Demandez une nouvelle invitation.' }
+  const { email } = data as { email: string }
+  const { error: e2 } = await db.auth.signUp({ email, password })
+  if (e2) return { ok: false, message: e2.message.includes('weak') || e2.message.includes('Password') ? 'Mot de passe trop faible : mélangez lettres, chiffres et symboles.' : 'Le compte n’a pas pu être créé. Réessayez.' }
+  const { error: e3 } = await db.auth.signInWithPassword({ email, password })
+  if (e3) return { ok: true, message: 'Compte créé. Connectez-vous avec votre e-mail et votre nouveau mot de passe.' }
+  redirect('/admin')
+}
+
+/** Mon profil : nom affiché et changement de mot de passe. */
+export async function updateMyProfile(_: FormState, f: FormData): Promise<FormState> {
+  const db = await requireAdmin()
+  const { data: me } = await db.auth.getUser()
+  const full_name = str(f, 'full_name')
+  await db.from('admins').update({ full_name: full_name || null }).eq('user_id', me.user!.id)
+  const password = String(f.get('password') ?? ''), confirm = String(f.get('confirm') ?? '')
+  if (password) {
+    if (password.length < 10) return { ok: false, message: 'Le nouveau mot de passe doit faire au moins 10 caractères.' }
+    if (password !== confirm) return { ok: false, message: 'Les deux mots de passe ne sont pas identiques.' }
+    const { error } = await db.auth.updateUser({ password })
+    if (error) return { ok: false, message: 'Le mot de passe n’a pas pu être changé : choisissez-en un plus robuste.' }
+  }
+  revalidatePath('/admin', 'layout')
+  return { ok: true, message: password ? 'Profil et mot de passe mis à jour.' : 'Profil mis à jour.' }
+}
+
+/** Mot de passe oublié : envoie un lien de réinitialisation (e-mail Supabase). */
+export async function requestPasswordReset(_: FormState, f: FormData): Promise<FormState> {
+  const db = await sessionClient()
+  const email = str(f, 'email')
+  if (!db || !email) return { ok: false, message: 'Indiquez votre adresse e-mail.' }
+  await db.auth.resetPasswordForEmail(email, { redirectTo: `${SITE_URL}/admin/auth/confirm?next=${encodeURIComponent('/admin/profil?reinit=1')}` })
+  return { ok: true, message: 'Si cette adresse correspond à un compte, un lien de réinitialisation vient de lui être envoyé.' }
 }
 
 export async function signIn(_: FormState, f: FormData): Promise<FormState> {
@@ -323,6 +442,8 @@ export async function signIn(_: FormState, f: FormData): Promise<FormState> {
   if (!db) return { ok: false, message: "La base de données n'est pas encore connectée." }
   const { error } = await db.auth.signInWithPassword({ email: str(f, 'email'), password: String(f.get('password') ?? '') })
   if (error) return { ok: false, message: 'E-mail ou mot de passe incorrect.' }
+  const { data: ok } = await db.rpc('is_admin')
+  if (!ok) { await db.auth.signOut(); return { ok: false, message: "Ce compte n'a pas (ou plus) accès au backoffice. Contactez un administrateur." } }
   redirect('/admin')
 }
 
@@ -333,35 +454,35 @@ export async function signOut() {
 }
 
 export async function setQuoteStatus(f: FormData) {
-  const db = await requireAdmin()
+  const db = await requireAdmin('devis')
   await db.from('quote_requests').update({ status: str(f, 'status'), admin_notes: str(f, 'admin_notes') || null }).eq('id', str(f, 'id'))
   revalidatePath('/admin/devis')
 }
 
 export async function setEnrollmentStatus(f: FormData) {
-  const db = await requireAdmin()
+  const db = await requireAdmin('formations')
   const status = str(f, 'status')
   await db.from('training_enrollments').update({ status, paid_at: status === 'paid' ? new Date().toISOString() : null }).eq('id', str(f, 'id'))
   revalidatePath('/admin/inscriptions')
 }
 
 export async function setRegistrationStatus(f: FormData) {
-  const db = await requireAdmin()
+  const db = await requireAdmin('evenements')
   await db.from('event_registrations').update({ status: str(f, 'status') }).eq('id', str(f, 'id'))
   revalidatePath('/admin/participants')
   revalidatePath('/evenements', 'layout')
 }
 
 export async function setOrderStatus(f: FormData) {
-  const db = await requireAdmin()
+  const db = await requireAdmin('boutique')
   const status = str(f, 'status')
   await db.from('orders').update({ status, paid_at: status === 'paid' ? new Date().toISOString() : null }).eq('id', str(f, 'id'))
   revalidatePath('/admin/commandes')
 }
 
 export async function saveRow(f: FormData) {
-  const db = await requireAdmin()
   const table = str(f, '_table')
+  const db = await requireAdmin(permForTable(table))
   const def = TABLES[table]
   if (!def) return
   const row: Record<string, unknown> = {}
@@ -382,8 +503,8 @@ export async function saveRow(f: FormData) {
 }
 
 export async function deleteRow(f: FormData) {
-  const db = await requireAdmin()
   const table = str(f, '_table')
+  const db = await requireAdmin(permForTable(table))
   const def = TABLES[table]
   if (!def) return
   await db.from(table).delete().eq(def.key, str(f, '_id'))

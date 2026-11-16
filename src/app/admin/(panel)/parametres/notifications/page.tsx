@@ -1,8 +1,10 @@
+import { requirePerm } from '@/lib/access'
 import { decrypt, encryptionReady, mask } from '@/lib/payment'
 import { sessionClient } from '@/lib/supabase'
 import NotifForm, { TestForm } from './NotifForm'
 
 export default async function Notifications() {
+  await requirePerm('parametres')
   const db = (await sessionClient())!
   const [{ data }, { data: logs }] = await Promise.all([
     db.from('notification_settings').select('*').eq('id', 1).maybeSingle(),

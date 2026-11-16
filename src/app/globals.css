@@ -321,3 +321,20 @@ footer .end{border-top:1px solid #45484D;margin-top:40px;padding-top:24px;displa
 .plans span{display:flex;flex-direction:column;gap:2px}
 .plans small{color:var(--muted);font-size:14px}
 .badge-s.partial{background:#E6F1FE;color:var(--azure-ink)}
+/* paramètres */
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:18px}
+.setting-card{display:flex;flex-direction:column;gap:8px;padding:22px;border-radius:20px;background:#fff;border:1px solid var(--line);border-top:4px solid var(--azure);text-decoration:none}
+.setting-card strong{font-size:19px}
+.setting-card span{color:var(--muted);font-size:15px}
+.setting-card:hover,.setting-card:focus-visible{background:#EEF5FE}
+.roles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(360px,100%),1fr));gap:20px}
+.role{border:1px solid var(--line);border-top:4px solid var(--azure);border-radius:18px;padding:20px;background:#fff;margin:0;display:flex;flex-direction:column;gap:12px}
+.role.new{border-top-color:var(--coral);border-style:dashed solid solid}
+.role legend{font-weight:700;font-size:18px;padding:0 6px}
+.perms{display:flex;flex-direction:column;gap:6px}
+.perms label{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.perms input{margin-top:3px;width:18px;height:18px}
+.linkbtn.danger,.errtxt{color:#7A1F1A}
+.who{display:flex;flex-direction:column;gap:2px;padding:10px 12px;margin:4px 0 8px;border-radius:12px;background:rgba(255,255,255,.08);font-size:14px;color:#D9DBDF;text-decoration:none}
+.who strong{color:#fff;font-size:15px}
+.admin aside a.grp-link{padding:0 12px;border:0;color:#9CC7FB;font-weight:600;font-size:13px;margin-top:18px}

@@ -1,3 +1,4 @@
+import { requirePerm } from '@/lib/access'
 import Link from 'next/link'
 import { setRegistrationStatus } from '@/app/actions'
 import { formatXof } from '@/lib/format'
@@ -8,6 +9,7 @@ const LABEL: Record<string, string> = { pending: 'À confirmer', confirmed: 'Con
 const BADGE: Record<string, string> = { pending: 'pending', confirmed: 'in_progress', partial: 'in_progress', paid: 'paid', attended: 'paid', cancelled: '' }
 
 export default async function Participants({ searchParams }: { searchParams: Promise<{ evenement?: string }> }) {
+  await requirePerm('evenements')
   const { evenement } = await searchParams
   const db = (await sessionClient())!
   const [{ data: events }, regsRes] = await Promise.all([

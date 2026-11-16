@@ -1,3 +1,4 @@
+import { permForTable, requirePerm } from '@/lib/access'
 import { notFound } from 'next/navigation'
 import { deleteRow, saveRow } from '@/app/actions'
 import { sessionClient } from '@/lib/supabase'
@@ -81,6 +82,7 @@ export default async function ContentTable({ params }: { params: Promise<{ table
   const { table } = await params
   const def = TABLES[table]
   if (!def) notFound()
+  await requirePerm(permForTable(table))
   const db = (await sessionClient())!
   const { data } = await db.from(table).select('*').order(def.order, { ascending: def.order !== 'starts_at' })
   const rows = (data ?? []) as Row[]

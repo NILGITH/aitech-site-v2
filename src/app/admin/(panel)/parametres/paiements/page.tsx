@@ -1,3 +1,4 @@
+import { requirePerm } from '@/lib/access'
 import { encryptionReady, decrypt, mask, type PaymentRow } from '@/lib/payment'
 import { formatXof } from '@/lib/format'
 import { sessionClient } from '@/lib/supabase'
@@ -6,6 +7,7 @@ import PaymentForm, { ManualVerify } from './PaymentForm'
 const KIND: Record<string, string> = { order: 'Commande', training: 'Formation', event: 'Événement' }
 
 export default async function Payments() {
+  await requirePerm('parametres')
   const db = (await sessionClient())!
   const [{ data }, { data: txs }] = await Promise.all([
     db.from('payment_settings').select('*').eq('id', 1).maybeSingle(),

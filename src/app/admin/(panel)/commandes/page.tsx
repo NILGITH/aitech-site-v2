@@ -1,3 +1,4 @@
+import { requirePerm } from '@/lib/access'
 import { setOrderStatus } from '@/app/actions'
 import { formatXof } from '@/lib/data'
 import { sessionClient } from '@/lib/supabase'
@@ -6,6 +7,7 @@ import PaymentCell from '@/components/PaymentCell'
 const LABEL: Record<string, string> = { pending: 'En attente', partial: 'Acompte versé', paid: 'Payée', failed: 'Échouée', cancelled: 'Annulée' }
 
 export default async function Orders() {
+  await requirePerm('boutique')
   const db = (await sessionClient())!
   const { data } = await db.from('orders').select('*, order_items(name, quantity, unit_price_xof)').order('created_at', { ascending: false }).limit(200)
   return (

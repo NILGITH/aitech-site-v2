@@ -7,7 +7,8 @@ const TZ = 'Africa/Abidjan'
 type Act = { at: string; kind: string; text: string; href: string; status: string }
 const ST: Record<string, string> = { new: 'Nouvelle', pending: 'À traiter', partial: 'Acompte', in_progress: 'En cours', confirmed: 'Confirmée', paid: 'Payée', attended: 'Présent', done: 'Traitée', cancelled: 'Annulée', failed: 'Échouée' }
 
-export default async function Dashboard() {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ refus?: string }> }) {
+  const { refus } = await searchParams
   const db = (await sessionClient())!
   const monthStart = new Date(); monthStart.setUTCDate(1); monthStart.setUTCHours(0, 0, 0, 0)
   const [quotes, orders, enrolls, regs, events, txs, votes, pay] = await Promise.all([
@@ -56,9 +57,10 @@ export default async function Dashboard() {
 
   return (
     <div className="stack dash" style={{ gap: 36 }}>
+      {refus && <p className="warn" role="alert">Votre profil ne donne pas accès à cette partie du backoffice. Demandez à un administrateur de modifier vos autorisations si besoin.</p>}
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <h1 className="h2">Tableau de bord</h1>
-        <Link href="/admin/paiements" className={`paystate ${p?.enabled ? (p.mode === 'live' ? 'live' : 'test') : 'off'}`}>
+        <Link href="/admin/parametres/paiements" className={`paystate ${p?.enabled ? (p.mode === 'live' ? 'live' : 'test') : 'off'}`}>
           Paiement en ligne : {p?.enabled ? (p.mode === 'live' ? 'actif (production)' : 'actif (sandbox, test)') : 'désactivé'}
         </Link>
       </div>
