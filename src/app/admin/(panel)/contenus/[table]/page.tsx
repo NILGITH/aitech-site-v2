@@ -23,6 +23,14 @@ function Input({ field, row, uid, table, refs }: { field: Field; row?: Row; uid:
       </div>
     )
   }
+  if (field.type === 'date') {
+    return (
+      <div className="field">
+        <label htmlFor={id}>{field.label}{field.required ? ' *' : ''}</label>
+        <input id={id} name={field.name} type="date" defaultValue={v ? String(v).slice(0, 10) : ''} required={field.required} />
+      </div>
+    )
+  }
   if (field.type === 'datetime') {
     const local = v ? new Date(String(v)).toISOString().slice(0, 16) : ''
     return (

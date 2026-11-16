@@ -5,8 +5,15 @@ import seed from '@/lib/seed.json'
 import { publicClient, sessionClient } from '@/lib/supabase'
 import { TABLES } from '@/lib/tables'
 import { accessHash, accessToken, activeKeys, decrypt, encrypt, encryptionReady, verifyTransaction, type Mode, type PaymentRow } from '@/lib/payment'
+import { fcfa, loadConfig, notify, payLink, sendEmail, sendWhatsApp } from '@/lib/notify'
 
-export type Pay = { kind: 'order' | 'training' | 'event'; reference: string; amount: number; key: string; sandbox: boolean; name: string; email: string; phone: string }
+export type Installment = { amount: number; due: string }
+export type PlanOption = { n: number; plan: Installment[] }
+export type Pay = {
+  kind: 'order' | 'training' | 'event'; reference: string; amount: number; key: string; sandbox: boolean; name: string; email: string; phone: string
+  total: number; paid: number; remaining: number; plan: Installment[] | null; options: PlanOption[]
+}
+type Options = { total: number; paid: number; remaining: number; next: number | null; plan: Installment[] | null; options: PlanOption[] }
 export type FormState = { ok: boolean; message: string; pay?: Pay }
 const NOT_READY = "La base de données n'est pas encore connectée : votre demande n'a pas pu être enregistrée. Appelez-nous ou écrivez-nous directement."
 const str = (f: FormData, k: string) => String(f.get(k) ?? '').trim()
@@ -24,10 +31,31 @@ function spam(f: FormData): FormState | null {
 async function payFor(kind: Pay['kind'], reference: string, name: string, email: string, phone: string): Promise<Pay | undefined> {
   const db = publicClient()
   if (!db) return undefined
-  const [{ data: cfg }, { data: due }] = await Promise.all([db.rpc('payment_public_config'), db.rpc('payment_due', { p_kind: kind, p_reference: reference })])
+  const [{ data: cfg }, { data: opt }] = await Promise.all([db.rpc('payment_public_config'), db.rpc('payment_options', { p_kind: kind, p_reference: reference })])
   const c = cfg as { enabled: boolean; sandbox?: boolean; key?: string } | null
-  if (!c?.enabled || !c.key || !due || Number(due) <= 0) return undefined
-  return { kind, reference, amount: Number(due), key: c.key, sandbox: !!c.sandbox, name, email, phone }
+  const o = opt as Options | null
+  if (!c?.enabled || !c.key || !o?.next || o.next <= 0) return undefined
+  return { kind, reference, amount: o.next, key: c.key, sandbox: !!c.sandbox, name, email, phone, total: o.total, paid: o.paid, remaining: o.remaining, plan: o.plan, options: o.options ?? [] }
+}
+
+const KIND_LABEL: Record<Pay['kind'], string> = { order: 'Commande', training: 'Inscription à la formation', event: "Inscription à l'événement" }
+
+/** Après une commande ou une inscription : prépare le paiement et prévient le client et l'équipe. */
+async function created(kind: Pay['kind'], reference: string, what: string, c: { name: string; email: string; phone: string }, details: string[]) {
+  const pay = await payFor(kind, reference, c.name, c.email, c.phone)
+  const db = publicClient()
+  const total = pay?.total ?? (db ? Number((await db.rpc('payment_options', { p_kind: kind, p_reference: reference })).data?.total ?? 0) : 0)
+  const amountLine = total > 0 ? `Montant : ${fcfa(total)}.` : 'Participation gratuite.'
+  notify({
+    event: `${kind}_created`,
+    client: {
+      ...c, subject: `${KIND_LABEL[kind]} ${reference} enregistrée`, title: `${KIND_LABEL[kind]} enregistrée`,
+      lines: [`Nous avons bien reçu votre ${kind === 'order' ? 'commande' : 'inscription'} : ${what}.`, `Référence : ${reference}.`, amountLine, ...(total > 0 ? ['Vous pouvez régler en ligne par Mobile Money ou carte bancaire, en une ou plusieurs fois selon les conditions proposées.'] : ['Notre équipe vous confirme votre place très vite.'])],
+      cta: total > 0 ? { label: 'Payer en ligne', url: payLink(reference) } : undefined,
+    },
+    admin: { subject: `${KIND_LABEL[kind]} ${reference}`, lines: [`${c.name} · ${c.email} · ${c.phone}`, what, amountLine, ...details] },
+  })
+  return pay
 }
 const PAY_NOW = 'Réglez maintenant en ligne pour la confirmer (Mobile Money ou carte bancaire), ou plus tard depuis la page « Payer en ligne » avec cette référence.'
 
@@ -53,6 +81,11 @@ export async function submitQuote(_: FormState, f: FormData): Promise<FormState>
   })
   if (error?.message?.includes('rate_limit')) return { ok: false, message: LIMIT }
   if (error) return { ok: false, message: "L'envoi a échoué. Réessayez dans un instant ou appelez-nous." }
+  notify({
+    event: 'quote_created',
+    client: { name, email, subject: 'Votre demande a bien été reçue', title: 'Merci pour votre demande', lines: ['Nous avons bien reçu votre message et revenons vers vous sous 24 h ouvrées.', str(f, 'subject') ? `Sujet : ${str(f, 'subject')}` : ''].filter(Boolean) },
+    admin: { subject: `Nouvelle demande de devis : ${name}`, lines: [`${name}${str(f, 'company') ? ` (${str(f, 'company')})` : ''} · ${email}${str(f, 'phone') ? ` · ${str(f, 'phone')}` : ''}`, str(f, 'subject'), message.slice(0, 600)].filter(Boolean) },
+  })
   return { ok: true, message: 'Votre demande est bien enregistrée. Nous vous répondons sous 24h.' }
 }
 
@@ -73,7 +106,7 @@ export async function createOrder(_: FormState, f: FormData): Promise<FormState>
   if (error?.message?.includes('rate_limit')) return { ok: false, message: LIMIT }
   if (error?.message?.includes('empty_cart')) return { ok: false, message: 'Ces produits ne sont plus disponibles.' }
   if (error || !reference) return { ok: false, message: "La commande n'a pas pu être enregistrée. Réessayez dans un instant." }
-  const pay = await payFor('order', String(reference), name, email, phone)
+  const pay = await created('order', String(reference), `${slugs.length} article${slugs.length > 1 ? 's' : ''} de la boutique`, { name, email, phone }, slugs.map((s) => `${cart[s]} × ${s}`))
   if (pay) return { ok: true, message: `Commande ${reference} enregistrée. ${PAY_NOW}`, pay }
   return { ok: true, message: `Commande ${reference} enregistrée. Nous vous contactons pour le règlement.` }
 }
@@ -102,7 +135,7 @@ export async function enrollTraining(_: FormState, f: FormData): Promise<FormSta
   if (error?.message?.includes('rate_limit')) return { ok: false, message: LIMIT }
   if (error?.message?.includes('unknown_training')) return { ok: false, message: "Cette formation n'est plus ouverte aux inscriptions." }
   if (error || !reference) return { ok: false, message: "L'inscription n'a pas pu être enregistrée. Réessayez dans un instant." }
-  const pay = await payFor('training', String(reference), name, email, phone)
+  const pay = await created('training', String(reference), `formation « ${str(f, 'slug').replace(/-/g, ' ')} »`, { name, email, phone }, [str(f, 'company'), str(f, 'message')].filter(Boolean))
   if (pay) return { ok: true, message: `Inscription ${reference} enregistrée. ${PAY_NOW}`, pay }
   return { ok: true, message: `Inscription ${reference} enregistrée. Nous vous contactons pour confirmer votre place et le règlement.` }
 }
@@ -123,7 +156,7 @@ export async function registerEvent(_: FormState, f: FormData): Promise<FormStat
   if (e.includes('full')) return { ok: false, message: "Il n'y a plus assez de places pour cet événement. Réduisez le nombre de places ou contactez-nous." }
   if (e.includes('closed')) return { ok: false, message: 'Les inscriptions à cet événement sont fermées.' }
   if (error || !reference) return { ok: false, message: "L'inscription n'a pas pu être enregistrée. Réessayez dans un instant." }
-  const pay = await payFor('event', String(reference), name, email, phone)
+  const pay = await created('event', String(reference), `événement « ${str(f, 'slug').replace(/-/g, ' ')} », ${str(f, 'seats') || 1} place(s)`, { name, email, phone }, [str(f, 'company'), str(f, 'message')].filter(Boolean))
   if (pay) return { ok: true, message: `Inscription ${reference} enregistrée. ${PAY_NOW}`, pay }
   return { ok: true, message: `Inscription ${reference} enregistrée. Vous recevrez une confirmation de notre équipe.` }
 }
@@ -138,12 +171,37 @@ export async function confirmPayment(kind: Pay['kind'], reference: string, trans
   if (!keys || !token || !db) return fail(`Paiement reçu par Kkiapay mais non vérifié automatiquement. Notre équipe le contrôle : gardez la référence ${reference} et le numéro ${transactionId}.`)
   const tx = await verifyTransaction(keys, transactionId)
   if (!tx || String(tx.status).toUpperCase() !== 'SUCCESS') return fail(`Kkiapay n'a pas confirmé ce paiement. Si votre compte a été débité, contactez-nous avec la référence ${reference}.`)
-  const { error } = await db.rpc('mark_paid', { p_token: token, p_kind: kind, p_reference: reference, p_tx: transactionId, p_amount: Math.round(Number(tx.amount) || 0) })
+  const paidAmount = Math.round(Number(tx.amount) || 0)
+  const { data: res, error } = await db.rpc('mark_paid', { p_token: token, p_kind: kind, p_reference: reference, p_tx: transactionId, p_amount: paidAmount })
   if (error?.message?.includes('duplicate')) return fail('Ce paiement a déjà été enregistré.')
   if (error?.message?.includes('amount_mismatch')) return fail(`Le montant payé ne correspond pas au montant dû. Contactez-nous avec la référence ${reference}.`)
   if (error?.message?.includes('not_pending')) return { ok: true, message: `La référence ${reference} est déjà réglée. Merci !` }
   if (error) return fail(`Paiement reçu, mais l'enregistrement a échoué. Notre équipe le contrôle : référence ${reference}, transaction ${transactionId}.`)
-  return { ok: true, message: `Paiement confirmé pour ${reference}. Merci ! Un e-mail de confirmation de Kkiapay vous a été envoyé.` }
+  const r = res as { status: string; paid: number; total: number; next: number | null }
+  const { data: rec } = await db.rpc('payment_record', { p_token: token, p_kind: kind, p_reference: reference })
+  const it = rec as { name: string; email: string; phone: string; label: string; plan: Installment[] | null } | null
+  const rest = r.total - r.paid
+  let nextDue = ''
+  if (it?.plan && rest > 0) { let cum = 0; for (const e of it.plan) { cum += e.amount; if (cum > r.paid) { nextDue = new Date(e.due).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); break } } }
+  const restLine = rest > 0 ? `Reste à payer : ${fcfa(rest)}${r.next ? `, prochaine échéance ${fcfa(r.next)}${nextDue ? ` au plus tard le ${nextDue}` : ''}` : ''}.` : 'Votre dossier est entièrement réglé.'
+  if (it) notify({
+    event: 'payment_received',
+    client: { name: it.name, email: it.email, phone: it.phone, subject: `Paiement reçu : ${reference}`, title: 'Paiement reçu, merci !', lines: [`Nous avons bien reçu ${fcfa(paidAmount)} pour ${it.label} (référence ${reference}).`, restLine, `Transaction Kkiapay : ${transactionId}.`], cta: rest > 0 ? { label: 'Régler la suite', url: payLink(reference) } : undefined },
+    admin: { subject: `Paiement reçu ${fcfa(paidAmount)} · ${reference}`, lines: [`${it.name} · ${it.label}`, `Payé : ${fcfa(r.paid)} sur ${fcfa(r.total)}.`, `Transaction Kkiapay ${transactionId} (${keys.sandbox ? 'sandbox' : 'production'}).`] },
+  })
+  if (rest > 0) return { ok: true, message: `Versement de ${fcfa(paidAmount)} confirmé pour ${reference}. ${restLine} Vous recevrez un rappel avant chaque échéance.` }
+  return { ok: true, message: `Paiement confirmé pour ${reference}. Merci ! Votre dossier est entièrement réglé.` }
+}
+
+/** Le client choisit de payer en une fois ou en plusieurs versements (avant le premier paiement). */
+export async function choosePlan(pay: Pay, n: number): Promise<{ ok: boolean; message?: string; pay?: Pay }> {
+  const db = publicClient()
+  if (!db || !/^[A-Z]{3}-[A-F0-9]{8}$/.test(pay.reference) || !Number.isInteger(n) || n < 1 || n > 12) return { ok: false, message: 'Choix non valide.' }
+  const { data, error } = await db.rpc('choose_plan', { p_kind: pay.kind, p_reference: pay.reference, p_n: n })
+  if (error?.message?.includes('locked')) return { ok: false, message: 'Un versement a déjà été effectué : l’échéancier ne peut plus être modifié.' }
+  if (error || !data) return { ok: false, message: "Ce paiement en plusieurs fois n'est pas disponible pour cette référence." }
+  const o = data as Options
+  return { ok: true, pay: { ...pay, amount: o.next ?? o.remaining, total: o.total, paid: o.paid, remaining: o.remaining, plan: o.plan, options: o.options ?? [] } }
 }
 
 const KIND_OF: Record<string, Pay['kind']> = { AIT: 'order', FOR: 'training', EVT: 'event' }
@@ -163,7 +221,7 @@ export async function lookupPayment(_: FormState, f: FormData): Promise<FormStat
   if (!r.amount) return { ok: true, message: `${r.label} : rien à payer, c'est gratuit.` }
   const pay = await payFor(r.kind, reference, r.name, email, r.phone)
   if (!pay) return { ok: false, message: `${r.label} : ${new Intl.NumberFormat('fr-FR').format(r.amount)} FCFA à régler. Le paiement en ligne est momentanément indisponible : contactez-nous pour régler autrement.` }
-  return { ok: true, message: `${r.label} · montant à régler :`, pay }
+  return { ok: true, message: pay.paid > 0 ? `${r.label} · déjà réglé ${fcfa(pay.paid)} sur ${fcfa(pay.total)}.` : `${r.label} · montant total ${fcfa(pay.total)}.`, pay }
 }
 
 /** Backoffice : enregistre un paiement Kkiapay que le client n'a pas pu finaliser sur le site (page fermée trop tôt). */
@@ -205,6 +263,59 @@ export async function savePaymentSettings(_: FormState, f: FormData): Promise<Fo
   if (error) return { ok: false, message: "L'enregistrement a échoué. Réessayez." }
   revalidatePath('/admin/paiements')
   return { ok: true, message: `Réglages enregistrés. Paiement en ligne ${merged.enabled ? `activé en mode ${mode === 'live' ? 'production' : 'sandbox (test)'}` : 'désactivé'}.` }
+}
+
+/** Backoffice : règles du paiement en plusieurs fois, par module. */
+export async function saveInstallmentRules(_: FormState, f: FormData): Promise<FormState> {
+  const db = await requireAdmin()
+  for (const kind of ['order', 'training', 'event']) {
+    const n = (k: string, d: number) => { const v = Number(str(f, `${kind}_${k}`)); return Number.isFinite(v) && str(f, `${kind}_${k}`) !== '' ? Math.round(v) : d }
+    const row = {
+      enabled: f.get(`${kind}_enabled`) === 'on', max_installments: Math.min(12, Math.max(2, n('max', 3))), min_amount_xof: Math.max(0, n('min', 0)),
+      deposit_percent: Math.min(99, Math.max(1, n('deposit', 40))), interval_days: Math.min(180, Math.max(1, n('interval', 30))),
+      deadline_days: kind === 'order' ? null : Math.max(0, n('deadline', 0)), updated_at: new Date().toISOString(),
+    }
+    const { error } = await db.from('installment_rules').update(row).eq('kind', kind)
+    if (error) return { ok: false, message: "L'enregistrement a échoué. Réessayez." }
+  }
+  revalidatePath('/admin/paiements')
+  return { ok: true, message: 'Règles du paiement en plusieurs fois enregistrées. Elles s’appliquent aux nouvelles commandes et inscriptions.' }
+}
+
+/** Backoffice : réglages des notifications. Les clés Resend et Kapso sont chiffrées comme celles de Kkiapay. */
+export async function saveNotificationSettings(_: FormState, f: FormData): Promise<FormState> {
+  const db = await requireAdmin()
+  if (!encryptionReady()) return { ok: false, message: "La clé de chiffrement PAYMENT_ENCRYPTION_KEY n'est pas configurée dans Vercel." }
+  const update: Record<string, unknown> = {
+    email_enabled: f.get('email_enabled') === 'on', email_from: str(f, 'email_from') || null, email_reply_to: str(f, 'email_reply_to') || null, admin_emails: str(f, 'admin_emails') || null,
+    whatsapp_enabled: f.get('whatsapp_enabled') === 'on', kapso_phone_number_id: str(f, 'kapso_phone_number_id') || null, wa_template: str(f, 'wa_template') || null,
+    wa_template_lang: str(f, 'wa_template_lang') || 'fr', admin_whatsapp: str(f, 'admin_whatsapp') || null,
+    notify_client: f.get('notify_client') === 'on', notify_admin: f.get('notify_admin') === 'on',
+    access_hash: accessHash(accessToken()!), updated_at: new Date().toISOString(),
+  }
+  if (str(f, 'resend_key')) update.resend_key_enc = encrypt(str(f, 'resend_key'))
+  if (str(f, 'kapso_key')) update.kapso_key_enc = encrypt(str(f, 'kapso_key'))
+  if (f.get('resend_clear') === 'on') update.resend_key_enc = null
+  if (f.get('kapso_clear') === 'on') update.kapso_key_enc = null
+  if (update.email_from && !/^(.+<)?[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+>?$/.test(String(update.email_from))) return { ok: false, message: 'Adresse d’expédition non valide. Exemple : AITECH <notifications@aitech-ci.com>' }
+  const { error } = await db.from('notification_settings').update(update).eq('id', 1)
+  if (error) return { ok: false, message: "L'enregistrement a échoué. Réessayez." }
+  revalidatePath('/admin/notifications')
+  return { ok: true, message: 'Réglages des notifications enregistrés.' }
+}
+
+/** Backoffice : envoie un message de test sur un canal. */
+export async function sendTestNotification(_: FormState, f: FormData): Promise<FormState> {
+  await requireAdmin()
+  const c = await loadConfig()
+  if (!c) return { ok: false, message: 'Enregistrez d’abord les réglages.' }
+  const to = str(f, 'to'), channel = str(f, 'channel')
+  if (!to) return { ok: false, message: 'Indiquez un destinataire.' }
+  const ok = channel === 'whatsapp'
+    ? await sendWhatsApp(c, to, 'équipe AITECH', 'Ceci est un message de test envoyé depuis le backoffice du site AITECH.', 'test')
+    : await sendEmail(c, to, 'Test des notifications AITECH', 'Les notifications fonctionnent', ['Ceci est un e-mail de test envoyé depuis le backoffice du site AITECH.'], 'test')
+  revalidatePath('/admin/notifications')
+  return ok ? { ok: true, message: `Message de test envoyé à ${to}.` } : { ok: false, message: 'L’envoi a échoué : le détail de l’erreur est dans le journal ci-dessous. Vérifiez que le canal est activé et la clé renseignée.' }
 }
 
 export async function signIn(_: FormState, f: FormData): Promise<FormState> {

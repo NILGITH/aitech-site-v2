@@ -408,42 +408,48 @@
    "category": "Cybersécurité",
    "name": "Audit Sécurité (Starter)",
    "description": "Évaluation rapide des risques et recommandations de sécurité prioritaires.",
-   "price_xof": 150000
+   "price_xof": 150000,
+   "image_url": "/images/cctv.jpg"
   },
   {
    "slug": "identite-visuelle",
    "category": "Design",
    "name": "Identité Visuelle",
    "description": "Logo + charte graphique pour renforcer votre image de marque.",
-   "price_xof": 100000
+   "price_xof": 100000,
+   "image_url": "/images/devs.jpg"
   },
   {
    "slug": "maintenance-it-mensuel",
    "category": "Infogérance",
    "name": "Maintenance IT (Mensuel)",
    "description": "Suivi et assistance IT pour garder vos systèmes stables et performants.",
-   "price_xof": 50000
+   "price_xof": 50000,
+   "image_url": "/images/tech.jpg"
   },
   {
    "slug": "pack-landing-page",
    "category": "Web",
    "name": "Pack Landing Page",
    "description": "Une landing page orientée conversion pour vos campagnes marketing.",
-   "price_xof": 80000
+   "price_xof": 80000,
+   "image_url": "/images/code.jpg"
   },
   {
    "slug": "pack-site-vitrine",
    "category": "Web",
    "name": "Pack Site Vitrine",
    "description": "Un site vitrine moderne pour présenter votre activité, optimisé pour mobile et référencement.",
-   "price_xof": 120000
+   "price_xof": 120000,
+   "image_url": "/images/code.jpg"
   },
   {
    "slug": "prototype-app-mobile",
    "category": "Mobile",
    "name": "Prototype App Mobile",
    "description": "Un prototype fonctionnel pour valider votre idée avant le développement complet.",
-   "price_xof": 200000
+   "price_xof": 200000,
+   "image_url": "/images/code.jpg"
   }
  ],
  "posts": [

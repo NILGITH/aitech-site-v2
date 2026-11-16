@@ -3,8 +3,8 @@ import { formatXof } from '@/lib/data'
 import { sessionClient } from '@/lib/supabase'
 import PaymentCell from '@/components/PaymentCell'
 
-const LABEL: Record<string, string> = { pending: 'En attente', confirmed: 'Confirmée', paid: 'Payée', cancelled: 'Annulée' }
-const BADGE: Record<string, string> = { pending: 'pending', confirmed: 'in_progress', paid: 'paid', cancelled: '' }
+const LABEL: Record<string, string> = { pending: 'En attente', confirmed: 'Confirmée', partial: 'Acompte versé', paid: 'Payée', cancelled: 'Annulée' }
+const BADGE: Record<string, string> = { pending: 'pending', confirmed: 'in_progress', partial: 'in_progress', paid: 'paid', cancelled: '' }
 
 export default async function Enrollments() {
   const db = (await sessionClient())!
@@ -24,7 +24,7 @@ export default async function Enrollments() {
                 <td>{e.training_title}</td>
                 <td>{e.full_name}{e.company ? ` (${e.company})` : ''}<br /><a href={`mailto:${e.email}`}>{e.email}</a><br />{e.phone}{e.message && <><br /><span className="muted">{e.message}</span></>}</td>
                 <td>{formatXof(e.amount_xof)}</td>
-                <td><PaymentCell status={e.status} amount={e.amount_xof} provider={e.payment_provider} paymentRef={e.payment_ref} paidAt={e.paid_at} reference={e.reference} /></td>
+                <td><PaymentCell status={e.status} amount={e.amount_xof} provider={e.payment_provider} paymentRef={e.payment_ref} paidAt={e.paid_at} reference={e.reference} amountPaid={e.amount_paid} plan={e.plan} /></td>
                 <td><span className={`badge-s ${BADGE[e.status]}`}>{LABEL[e.status]}</span></td>
                 <td>
                   <form action={setEnrollmentStatus} className="row" style={{ gap: 8 }}>

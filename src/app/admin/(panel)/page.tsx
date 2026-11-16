@@ -5,16 +5,16 @@ import { formatXof } from '@/lib/format'
 
 const TZ = 'Africa/Abidjan'
 type Act = { at: string; kind: string; text: string; href: string; status: string }
-const ST: Record<string, string> = { new: 'Nouvelle', pending: 'À traiter', in_progress: 'En cours', confirmed: 'Confirmée', paid: 'Payée', attended: 'Présent', done: 'Traitée', cancelled: 'Annulée', failed: 'Échouée' }
+const ST: Record<string, string> = { new: 'Nouvelle', pending: 'À traiter', partial: 'Acompte', in_progress: 'En cours', confirmed: 'Confirmée', paid: 'Payée', attended: 'Présent', done: 'Traitée', cancelled: 'Annulée', failed: 'Échouée' }
 
 export default async function Dashboard() {
   const db = (await sessionClient())!
   const monthStart = new Date(); monthStart.setUTCDate(1); monthStart.setUTCHours(0, 0, 0, 0)
   const [quotes, orders, enrolls, regs, events, txs, votes, pay] = await Promise.all([
     db.from('quote_requests').select('name, company, status, created_at').order('created_at', { ascending: false }).limit(200),
-    db.from('orders').select('reference, customer_name, total_xof, status, created_at, paid_at').order('created_at', { ascending: false }).limit(500),
-    db.from('training_enrollments').select('reference, full_name, training_title, amount_xof, status, created_at, paid_at').order('created_at', { ascending: false }).limit(500),
-    db.from('event_registrations').select('reference, full_name, event_id, event_title, seats, amount_xof, status, created_at, paid_at').order('created_at', { ascending: false }).limit(1000),
+    db.from('orders').select('reference, customer_name, total_xof, amount_paid, status, created_at, paid_at').order('created_at', { ascending: false }).limit(500),
+    db.from('training_enrollments').select('reference, full_name, training_title, amount_xof, amount_paid, status, created_at, paid_at').order('created_at', { ascending: false }).limit(500),
+    db.from('event_registrations').select('reference, full_name, event_id, event_title, seats, amount_xof, amount_paid, status, created_at, paid_at').order('created_at', { ascending: false }).limit(1000),
     db.from('events').select('id, slug, title, starts_at, capacity, published').gte('starts_at', new Date().toISOString()).order('starts_at').limit(4),
     db.from('payment_transactions').select('amount_xof, mode, created_at').order('created_at', { ascending: false }).limit(1000),
     db.from('poll_votes').select('challenge'),
@@ -23,16 +23,20 @@ export default async function Dashboard() {
   const O = orders.data ?? [], E = enrolls.data ?? [], R = regs.data ?? [], Q = quotes.data ?? [], T = txs.data ?? []
 
   // Chiffre d’affaires encaissé : paiements en ligne et paiements saisis à la main.
-  const paidAll = [...O.map((o) => ({ a: o.total_xof, s: o.status, at: o.paid_at })), ...E.map((e) => ({ a: e.amount_xof, s: e.status, at: e.paid_at })), ...R.map((r) => ({ a: r.amount_xof, s: r.status, at: r.paid_at }))]
-  const paid = paidAll.filter((x) => x.s === 'paid')
-  const cashTotal = paid.reduce((n, x) => n + x.a, 0)
-  const cashMonth = paid.filter((x) => x.at && new Date(x.at) >= monthStart).reduce((n, x) => n + x.a, 0)
-  const due = [...O.filter((o) => o.status === 'pending').map((o) => o.total_xof), ...E.filter((e) => ['pending', 'confirmed'].includes(e.status)).map((e) => e.amount_xof), ...R.filter((r) => ['pending', 'confirmed'].includes(r.status)).map((r) => r.amount_xof)].reduce((n, a) => n + a, 0)
-  const online = T.filter((t) => t.mode === 'live')
+  // Encaissé : versements en ligne (journal Kkiapay) + dossiers soldés à la main.
+  type Rec = { total: number; paidAmt: number; s: string; at: string | null }
+  const recs: Rec[] = [...O.map((o) => ({ total: o.total_xof, paidAmt: o.amount_paid ?? 0, s: o.status, at: o.paid_at })), ...E.map((e) => ({ total: e.amount_xof, paidAmt: e.amount_paid ?? 0, s: e.status, at: e.paid_at })), ...R.map((r) => ({ total: r.amount_xof, paidAmt: r.amount_paid ?? 0, s: r.status, at: r.paid_at }))]
+  const manual = recs.filter((x) => x.s === 'paid' && x.paidAmt === 0)
+  const live = T.filter((t) => t.mode === 'live')
+  const cashTotal = live.reduce((n, t) => n + t.amount_xof, 0) + manual.reduce((n, x) => n + x.total, 0)
+  const cashMonth = live.filter((t) => new Date(t.created_at) >= monthStart).reduce((n, t) => n + t.amount_xof, 0) + manual.filter((x) => x.at && new Date(x.at) >= monthStart).reduce((n, x) => n + x.total, 0)
+  const due = recs.filter((x) => ['pending', 'confirmed', 'partial'].includes(x.s)).reduce((n, x) => n + x.total - x.paidAmt, 0)
+  const partials = recs.filter((x) => x.s === 'partial').length
+  const online = live
 
   const todo = [
     { n: Q.filter((q) => q.status === 'new').length, label: 'demandes de devis nouvelles', href: '/admin/devis' },
-    { n: O.filter((o) => o.status === 'pending').length, label: 'commandes à payer', href: '/admin/commandes' },
+    { n: O.filter((o) => o.status === 'pending' || o.status === 'partial').length, label: 'commandes à solder', href: '/admin/commandes' },
     { n: E.filter((e) => e.status === 'pending').length, label: 'inscriptions formation à confirmer', href: '/admin/inscriptions' },
     { n: R.filter((r) => r.status === 'pending').length, label: 'participants événement à confirmer', href: '/admin/participants' },
   ]
@@ -61,7 +65,7 @@ export default async function Dashboard() {
 
       <section className="kpis" aria-label="Chiffres clés">
         <div className="kpi main"><span>Encaissé ce mois</span><b>{formatXof(cashMonth)}</b><small>{formatXof(cashTotal)} depuis le début</small></div>
-        <div className="kpi"><span>Reste à encaisser</span><b>{formatXof(due)}</b><small>commandes et inscriptions en attente</small></div>
+        <div className="kpi"><span>Reste à encaisser</span><b>{formatXof(due)}</b><small>{partials ? `dont ${partials} dossier${partials > 1 ? 's' : ''} en plusieurs fois` : 'commandes et inscriptions en attente'}</small></div>
         <div className="kpi"><span>Paiements en ligne</span><b>{online.length}</b><small>{formatXof(online.reduce((n, t) => n + t.amount_xof, 0))} via Kkiapay (production)</small></div>
         <div className="kpi"><span>Demandes de devis</span><b>{Q.length}</b><small>{Q.filter((q) => q.status !== 'done').length} non clôturées</small></div>
       </section>

@@ -306,3 +306,18 @@ footer .end{border-top:1px solid #45484D;margin-top:40px;padding-top:24px;displa
 .bars li{display:grid;grid-template-columns:minmax(140px,1.4fr) 2fr 52px;gap:14px;align-items:center;padding:8px 0}
 .bars b{text-align:right}
 @media (max-width:560px){.acts li a{grid-template-columns:1fr auto}.acts .tag,.acts time{display:none}.bars li{grid-template-columns:1fr 52px}.bars i{grid-column:1/-1;order:3}}
+/* boutique */
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr));gap:26px}
+.product{display:flex;flex-direction:column;background:var(--paper);border-radius:22px;overflow:hidden}
+.product-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#E3E4E6}
+.product-body{padding:20px 22px 22px;display:flex;flex-direction:column;gap:10px;flex:1}
+.product .price{margin:4px 0}
+/* paiement en plusieurs fois */
+.plans{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.plans legend{font-weight:700;margin-bottom:6px}
+.plans label{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:#fff;border:2px solid transparent;cursor:pointer}
+.plans label:has(input:checked){border-color:var(--azure)}
+.plans input{margin-top:4px;width:18px;height:18px}
+.plans span{display:flex;flex-direction:column;gap:2px}
+.plans small{color:var(--muted);font-size:14px}
+.badge-s.partial{background:#E6F1FE;color:var(--azure-ink)}

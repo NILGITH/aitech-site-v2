@@ -1,4 +1,4 @@
-export type Field = { name: string; label: string; type: 'text' | 'textarea' | 'number' | 'bool' | 'list' | 'select' | 'json' | 'image' | 'ref' | 'datetime'; required?: boolean; options?: string[]; ref?: { table: string; label: string } }
+export type Field = { name: string; label: string; type: 'text' | 'textarea' | 'number' | 'bool' | 'list' | 'select' | 'json' | 'image' | 'ref' | 'datetime' | 'date'; required?: boolean; options?: string[]; ref?: { table: string; label: string } }
 export type TableDef = { label: string; key: string; order: string; title: string; fields: Field[] }
 
 const pos: Field = { name: 'position', label: 'Ordre', type: 'number' }
@@ -53,7 +53,9 @@ export const TABLES: Record<string, TableDef> = {
     { name: 'description', label: 'Présentation détaillée', type: 'textarea' },
     { name: 'duration', label: 'Durée (ex. 5 jours)', type: 'text' },
     { name: 'price_xof', label: 'Prix (FCFA)', type: 'number', required: true },
-    { name: 'next_session', label: 'Prochaine session', type: 'text' },
+    { name: 'next_session', label: 'Prochaine session (texte affiché)', type: 'text' },
+    { name: 'starts_on', label: 'Date de début (sert au calendrier des versements)', type: 'date' },
+    { name: 'installments_allowed', label: 'Paiement en plusieurs fois autorisé', type: 'bool' },
     { name: 'image_url', label: 'Image', type: 'image' }, pos, pub] },
   training_modules: { label: 'Modules de formation', key: 'id', order: 'position', title: 'title', fields: [
     { name: 'training_id', label: 'Formation', type: 'ref', ref: { table: 'trainings', label: 'title' }, required: true },
@@ -73,6 +75,7 @@ export const TABLES: Record<string, TableDef> = {
     { name: 'price_xof', label: 'Prix par place (FCFA, 0 = gratuit)', type: 'number', required: true },
     { name: 'capacity', label: 'Nombre de places (vide = illimité)', type: 'number' },
     { name: 'registration_open', label: 'Inscriptions ouvertes', type: 'bool' },
+    { name: 'installments_allowed', label: 'Paiement en plusieurs fois autorisé', type: 'bool' },
     { name: 'image_url', label: 'Image', type: 'image' }, pub] },
   faqs: { label: 'Chatbot : questions fréquentes', key: 'id', order: 'position', title: 'question', fields: [
     { name: 'question', label: 'Question', type: 'text', required: true },
@@ -83,7 +86,9 @@ export const TABLES: Record<string, TableDef> = {
     { name: 'slug', label: 'Identifiant (sans espace)', type: 'text', required: true },
     { name: 'category', label: 'Catégorie', type: 'text', required: true },
     { name: 'description', label: 'Description', type: 'textarea', required: true },
-    { name: 'price_xof', label: 'Prix (FCFA)', type: 'number', required: true }, pos,
+    { name: 'price_xof', label: 'Prix (FCFA)', type: 'number', required: true },
+    { name: 'image_url', label: 'Image', type: 'image' },
+    { name: 'installments_allowed', label: 'Paiement en plusieurs fois autorisé', type: 'bool' }, pos,
     { name: 'active', label: 'En vente', type: 'bool' }] },
   site_settings: { label: 'Coordonnées', key: 'key', order: 'key', title: 'key', fields: [
     { name: 'key', label: 'Clé (contact)', type: 'text', required: true },

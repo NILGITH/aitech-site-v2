@@ -4,8 +4,8 @@ import { formatXof } from '@/lib/format'
 import { sessionClient } from '@/lib/supabase'
 import PaymentCell from '@/components/PaymentCell'
 
-const LABEL: Record<string, string> = { pending: 'À confirmer', confirmed: 'Confirmée', paid: 'Payée', attended: 'Présent', cancelled: 'Annulée' }
-const BADGE: Record<string, string> = { pending: 'pending', confirmed: 'in_progress', paid: 'paid', attended: 'paid', cancelled: '' }
+const LABEL: Record<string, string> = { pending: 'À confirmer', confirmed: 'Confirmée', partial: 'Acompte versé', paid: 'Payée', attended: 'Présent', cancelled: 'Annulée' }
+const BADGE: Record<string, string> = { pending: 'pending', confirmed: 'in_progress', partial: 'in_progress', paid: 'paid', attended: 'paid', cancelled: '' }
 
 export default async function Participants({ searchParams }: { searchParams: Promise<{ evenement?: string }> }) {
   const { evenement } = await searchParams
@@ -42,7 +42,7 @@ export default async function Participants({ searchParams }: { searchParams: Pro
                 <td>{r.full_name}{r.company ? ` (${r.company})` : ''}<br /><a href={`mailto:${r.email}`}>{r.email}</a><br />{r.phone}{r.message && <><br /><span className="muted">{r.message}</span></>}</td>
                 <td>{r.seats}</td>
                 <td>{r.amount_xof > 0 ? formatXof(r.amount_xof) : 'Gratuit'}</td>
-                <td><PaymentCell status={r.status} amount={r.amount_xof} provider={r.payment_provider} paymentRef={r.payment_ref} paidAt={r.paid_at} reference={r.reference} /></td>
+                <td><PaymentCell status={r.status} amount={r.amount_xof} provider={r.payment_provider} paymentRef={r.payment_ref} paidAt={r.paid_at} reference={r.reference} amountPaid={r.amount_paid} plan={r.plan} /></td>
                 <td><span className={`badge-s ${BADGE[r.status]}`}>{LABEL[r.status]}</span></td>
                 <td>
                   <form action={setRegistrationStatus} className="row" style={{ gap: 8 }}>

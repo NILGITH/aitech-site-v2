@@ -5,6 +5,7 @@ import { useActionState, useState } from 'react'
 import { createOrder, submitQuote, type FormState } from '@/app/actions'
 import { formatXof } from '@/lib/format'
 import type { Product } from '@/lib/data'
+import { photo } from '@/lib/alt'
 
 const init: FormState = { ok: false, message: '' }
 function Notice({ state }: { state: FormState }) {
@@ -43,14 +44,17 @@ export function Shop({ products, online = false }: { products: Product[]; online
   const add = (slug: string, d: number) => setCart((c) => ({ ...c, [slug]: Math.max(0, (c[slug] ?? 0) + d) }))
   return (
     <div className="stack" style={{ gap: 48 }}>
-      <div className="cols">
+      <div className="products">
         {products.map((p) => (
-          <article key={p.slug} className="col">
+          <article key={p.slug} className="product">
+            <img className="product-img" {...photo(p.image_url || '/images/tech.jpg', '(max-width: 760px) 90vw, 30vw')} alt={p.name} loading="lazy" decoding="async" />
+            <div className="product-body">
             <span className="tag">{p.category}</span>
             <h2 className="h3">{p.name}</h2>
             <p className="muted">{p.description}</p>
             <p className="price">{new Intl.NumberFormat('fr-FR').format(p.price_xof)} <small>FCFA</small></p>
-            <button type="button" className="btn small" style={{ alignSelf: 'flex-start' }} onClick={() => add(p.slug, 1)}>Ajouter au panier</button>
+            <button type="button" className="btn small" style={{ alignSelf: 'flex-start', marginTop: 'auto' }} onClick={() => add(p.slug, 1)}>{cart[p.slug] ? `Ajouter (${cart[p.slug]} au panier)` : 'Ajouter au panier'}</button>
+            </div>
           </article>
         ))}
       </div>

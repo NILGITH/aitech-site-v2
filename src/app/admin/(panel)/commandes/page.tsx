@@ -3,7 +3,7 @@ import { formatXof } from '@/lib/data'
 import { sessionClient } from '@/lib/supabase'
 import PaymentCell from '@/components/PaymentCell'
 
-const LABEL: Record<string, string> = { pending: 'En attente', paid: 'Payée', failed: 'Échouée', cancelled: 'Annulée' }
+const LABEL: Record<string, string> = { pending: 'En attente', partial: 'Acompte versé', paid: 'Payée', failed: 'Échouée', cancelled: 'Annulée' }
 
 export default async function Orders() {
   const db = (await sessionClient())!
@@ -23,7 +23,7 @@ export default async function Orders() {
                 <td>{o.customer_name}<br /><a href={`mailto:${o.email}`}>{o.email}</a><br />{o.phone}</td>
                 <td>{(o.order_items as { name: string; quantity: number }[]).map((i) => <div key={i.name}>{i.quantity} × {i.name}</div>)}</td>
                 <td>{formatXof(o.total_xof)}</td>
-                <td><PaymentCell status={o.status} amount={o.total_xof} provider={o.payment_provider} paymentRef={o.payment_ref} paidAt={o.paid_at} reference={o.reference} /></td>
+                <td><PaymentCell status={o.status} amount={o.total_xof} provider={o.payment_provider} paymentRef={o.payment_ref} paidAt={o.paid_at} reference={o.reference} amountPaid={o.amount_paid} plan={o.plan} /></td>
                 <td><span className={`badge-s ${o.status}`}>{LABEL[o.status]}</span></td>
                 <td>
                   <form action={setOrderStatus} className="row" style={{ gap: 8 }}>
