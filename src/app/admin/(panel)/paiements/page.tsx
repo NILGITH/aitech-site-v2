@@ -22,6 +22,9 @@ export default async function Payments() {
     <div className="stack" style={{ gap: 28 }}>
       <h1 className="h2">Paiements en ligne (Kkiapay)</h1>
       <p className="muted" style={{ maxWidth: 760 }}>Les clés se trouvent dans votre tableau de bord Kkiapay, rubrique Développeurs. La clé publique sert au formulaire de paiement ; les clés privée et secrète sont chiffrées avant d&apos;être enregistrées et ne sont jamais renvoyées vers le navigateur.</p>
+      {(['sandbox', 'live'] as const).filter((m) => { const s = state(m); const v = [s.public, s.private, s.secret].filter(Boolean); return new Set(v).size < v.length }).map((m) => (
+        <p key={m} className="warn" role="alert">Attention : plusieurs clés {m === 'live' ? 'de production' : 'sandbox'} se terminent par les mêmes caractères. La même valeur a sans doute été collée dans plusieurs champs ; Kkiapay refusera alors les paiements. Recopiez les trois clés depuis Kkiapay.</p>
+      ))}
       {!ready && <p className="warn" role="alert">La clé de chiffrement n&apos;est pas configurée : ajoutez la variable PAYMENT_ENCRYPTION_KEY (au moins 32 caractères) dans Vercel puis redéployez. En attendant, aucune clé ne peut être enregistrée.</p>}
       <PaymentForm ready={ready} enabled={!!row.enabled} mode={row.mode === 'live' ? 'live' : 'sandbox'} sandbox={state('sandbox')} live={state('live')} updatedAt={row.updated_at ?? null} />
       <ManualVerify />

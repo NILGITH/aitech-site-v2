@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import seed from '@/lib/seed.json'
 import { publicClient, sessionClient } from '@/lib/supabase'
 import { TABLES } from '@/lib/tables'
-import { accessHash, accessToken, activeKeys, encrypt, encryptionReady, verifyTransaction, type Mode, type PaymentRow } from '@/lib/payment'
+import { accessHash, accessToken, activeKeys, decrypt, encrypt, encryptionReady, verifyTransaction, type Mode, type PaymentRow } from '@/lib/payment'
 
 export type Pay = { kind: 'order' | 'training' | 'event'; reference: string; amount: number; key: string; sandbox: boolean; name: string; email: string; phone: string }
 export type FormState = { ok: boolean; message: string; pay?: Pay }
@@ -193,6 +193,11 @@ export async function savePaymentSettings(_: FormState, f: FormData): Promise<Fo
     if (f.get(`${m}_clear`) === 'on') Object.assign(update, { [`${m}_public`]: null, [`${m}_private_enc`]: null, [`${m}_secret_enc`]: null })
   }
   const merged = { ...row, ...update } as PaymentRow
+  for (const m of ['sandbox', 'live'] as const) {
+    const vals = [merged[`${m}_public`], decrypt(merged[`${m}_private_enc`]), decrypt(merged[`${m}_secret_enc`])].filter(Boolean)
+    if (new Set(vals).size < vals.length) return { ok: false, message: `Les clés ${m === 'live' ? 'de production' : 'sandbox'} sont identiques entre elles : la clé publique, la clé privée et la clé secrète sont trois valeurs différentes. Recopiez chacune depuis le tableau de bord Kkiapay.` }
+  }
+  if (merged.live_public && merged.live_public === merged.sandbox_public) return { ok: false, message: 'La clé publique de production est identique à la clé sandbox : vérifiez que vous avez copié les clés du bon environnement dans Kkiapay.' }
   if (merged.enabled && !(merged[`${mode}_public`] && merged[`${mode}_private_enc`] && merged[`${mode}_secret_enc`])) {
     return { ok: false, message: `Impossible d'activer le paiement : les trois clés ${mode === 'live' ? 'de production' : 'sandbox'} doivent être renseignées.` }
   }
