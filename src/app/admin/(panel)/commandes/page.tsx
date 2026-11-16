@@ -1,6 +1,7 @@
 import { setOrderStatus } from '@/app/actions'
 import { formatXof } from '@/lib/data'
 import { sessionClient } from '@/lib/supabase'
+import PaymentCell from '@/components/PaymentCell'
 
 const LABEL: Record<string, string> = { pending: 'En attente', paid: 'Payée', failed: 'Échouée', cancelled: 'Annulée' }
 
@@ -13,7 +14,7 @@ export default async function Orders() {
       {(data ?? []).length === 0 && <p className="muted">Aucune commande pour le moment. Les commandes validées dans la boutique apparaîtront ici.</p>}
       <div className="scroll">
         <table className="table">
-          <thead><tr><th>Référence</th><th>Date</th><th>Client</th><th>Articles</th><th>Total</th><th>Statut</th><th></th></tr></thead>
+          <thead><tr><th>Référence</th><th>Date</th><th>Client</th><th>Articles</th><th>Total</th><th>Paiement</th><th>Statut</th><th></th></tr></thead>
           <tbody>
             {(data ?? []).map((o) => (
               <tr key={o.id}>
@@ -22,6 +23,7 @@ export default async function Orders() {
                 <td>{o.customer_name}<br /><a href={`mailto:${o.email}`}>{o.email}</a><br />{o.phone}</td>
                 <td>{(o.order_items as { name: string; quantity: number }[]).map((i) => <div key={i.name}>{i.quantity} × {i.name}</div>)}</td>
                 <td>{formatXof(o.total_xof)}</td>
+                <td><PaymentCell status={o.status} amount={o.total_xof} provider={o.payment_provider} paymentRef={o.payment_ref} paidAt={o.paid_at} reference={o.reference} /></td>
                 <td><span className={`badge-s ${o.status}`}>{LABEL[o.status]}</span></td>
                 <td>
                   <form action={setOrderStatus} className="row" style={{ gap: 8 }}>

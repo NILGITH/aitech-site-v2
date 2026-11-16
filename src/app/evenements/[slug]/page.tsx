@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import Site from '@/components/Site'
 import { RegisterForm } from '@/components/Events'
 import { eventDay, eventTime, isPast, priceLabel } from '@/lib/events'
-import { getEvents } from '@/lib/data'
+import { getEvents, getOnlinePay } from '@/lib/data'
 import { photo } from '@/lib/alt'
 
 export const revalidate = 60
@@ -48,7 +48,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
             <h2 className="h2">Au programme</h2>
             <p className="muted" style={{ fontSize: 18, whiteSpace: 'pre-line' }}>{e.description || e.summary}</p>
           </div>
-          {open ? <RegisterForm e={e} /> : (
+          {open ? <RegisterForm e={e} online={(await getOnlinePay()).enabled} /> : (
             <div className="form">
               <h2 className="h3">{past ? 'Cet événement est terminé' : full ? 'Cet événement est complet' : 'Inscriptions fermées'}</h2>
               <p className="muted">{past ? 'Découvrez nos prochains rendez-vous.' : 'Contactez-nous pour être prévenu si une place se libère.'}</p>

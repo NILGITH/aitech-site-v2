@@ -47,6 +47,14 @@ export async function getEvents(): Promise<EventItem[]> {
   }
   return seed.events as EventItem[]
 }
+/** Le paiement en ligne est-il actif ? (affichage uniquement ; la vérification reste côté serveur) */
+export async function getOnlinePay(): Promise<{ enabled: boolean; sandbox: boolean }> {
+  const db = publicClient()
+  if (!db) return { enabled: false, sandbox: false }
+  const { data } = await db.rpc('payment_public_config')
+  const c = data as { enabled?: boolean; sandbox?: boolean } | null
+  return { enabled: !!c?.enabled, sandbox: !!c?.sandbox }
+}
 export const getFaqs = () => rows<Faq>('faqs', seed.faqs)
 export const getProducts = () => rows<Product>('products', seed.products)
 

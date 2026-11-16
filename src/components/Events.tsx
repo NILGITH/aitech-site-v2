@@ -71,7 +71,7 @@ export function EventList({ events }: { events: EventItem[] }) {
 
 const init: FormState = { ok: false, message: '' }
 
-export function RegisterForm({ e }: { e: EventItem }) {
+export function RegisterForm({ e, online = false }: { e: EventItem; online?: boolean }) {
   const [state, action, pending] = useActionState(registerEvent, init)
   const max = Math.min(10, e.seats_left ?? 10)
   return (
@@ -92,7 +92,8 @@ export function RegisterForm({ e }: { e: EventItem }) {
       <SpamGuard />
       {state.message && <p role="status" className={state.ok ? 'notice' : 'notice err'}>{state.message}</p>}
       {state.pay && <PayButton pay={state.pay} />}
-      <button className="btn" type="submit" disabled={pending} style={{ alignSelf: 'flex-start' }}>{pending ? 'Envoi…' : 'Réserver ma place'}</button>
+      {!state.ok && e.price_xof > 0 && online && <p className="paynote">Paiement en ligne sécurisé par Kkiapay : Mobile Money ou carte bancaire, juste après validation.</p>}
+      {!state.ok && <button className="btn" type="submit" disabled={pending} style={{ alignSelf: 'flex-start' }}>{pending ? 'Envoi…' : online && e.price_xof > 0 ? 'Réserver et payer' : 'Réserver ma place'}</button>}
     </form>
   )
 }

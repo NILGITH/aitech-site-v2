@@ -35,7 +35,7 @@ export function QuoteForm({ challenge }: { challenge?: string }) {
   )
 }
 
-export function Shop({ products }: { products: Product[] }) {
+export function Shop({ products, online = false }: { products: Product[]; online?: boolean }) {
   const [cart, setCart] = useState<Record<string, number>>({})
   const [state, action, pending] = useActionState(createOrder, init)
   const lines = products.filter((p) => cart[p.slug] > 0)
@@ -80,7 +80,8 @@ export function Shop({ products }: { products: Product[] }) {
         <div className="field"><label htmlFor="o-email">E-mail *</label><input id="o-email" name="email" type="email" required autoComplete="email" /></div>
         <SpamGuard />
       <Notice state={state} />
-        <button className="btn" type="submit" disabled={pending || lines.length === 0} style={{ alignSelf: 'flex-start' }}>{pending ? 'Enregistrement…' : 'Valider la commande'}</button>
+        {!state.ok && online && <p className="paynote">Paiement en ligne sécurisé par Kkiapay : Mobile Money ou carte bancaire, juste après validation.</p>}
+        {!state.ok && <button className="btn" type="submit" disabled={pending || lines.length === 0} style={{ alignSelf: 'flex-start' }}>{pending ? 'Enregistrement…' : online ? 'Commander et payer' : 'Valider la commande'}</button>}
       </form>
     </div>
   )

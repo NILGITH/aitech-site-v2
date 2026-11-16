@@ -36,7 +36,7 @@ export default function PayButton({ pay }: { pay: Pay }) {
         </button>
       )}
       {state.message && <p role="status" className={state.ok ? 'notice' : state.busy ? 'muted' : 'notice err'}>{state.message}</p>}
-      {!done && <p className="muted" style={{ fontSize: 14 }}>Mobile Money (Orange, MTN, Moov, Wave) ou carte bancaire. Vous pouvez aussi régler plus tard : notre équipe vous recontacte.</p>}
+      {!done && <p className="muted" style={{ fontSize: 14 }}>Mobile Money (Orange, MTN, Moov, Wave) ou carte bancaire. Vous pouvez aussi régler plus tard depuis la page <a href={`/paiement?ref=${pay.reference}`}>Payer en ligne</a> avec la référence {pay.reference}.</p>}
     </div>
   )
 }

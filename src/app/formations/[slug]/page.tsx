@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import Site from '@/components/Site'
 import { EnrollForm } from '@/components/Trainings'
-import { formatXof, getTrainings } from '@/lib/data'
+import { formatXof, getOnlinePay, getTrainings } from '@/lib/data'
 import { photo } from '@/lib/alt'
 
 export const revalidate = 60
@@ -17,6 +17,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   const { slug } = await params
   const t = (await getTrainings()).find((x) => x.slug === slug)
   if (!t) notFound()
+  const online = await getOnlinePay()
   return (
     <Site>
       <section className="hero">
@@ -48,7 +49,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
               </ol>
             )}
           </div>
-          <EnrollForm slug={t.slug} title={t.title} />
+          <EnrollForm slug={t.slug} title={t.title} paid={t.price_xof > 0} online={online.enabled} />
         </div>
       </section>
     </Site>

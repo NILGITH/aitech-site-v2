@@ -1,7 +1,7 @@
 import { encryptionReady, decrypt, mask, type PaymentRow } from '@/lib/payment'
 import { formatXof } from '@/lib/format'
 import { sessionClient } from '@/lib/supabase'
-import PaymentForm from './PaymentForm'
+import PaymentForm, { ManualVerify } from './PaymentForm'
 
 const KIND: Record<string, string> = { order: 'Commande', training: 'Formation', event: 'Événement' }
 
@@ -24,6 +24,7 @@ export default async function Payments() {
       <p className="muted" style={{ maxWidth: 760 }}>Les clés se trouvent dans votre tableau de bord Kkiapay, rubrique Développeurs. La clé publique sert au formulaire de paiement ; les clés privée et secrète sont chiffrées avant d&apos;être enregistrées et ne sont jamais renvoyées vers le navigateur.</p>
       {!ready && <p className="warn" role="alert">La clé de chiffrement n&apos;est pas configurée : ajoutez la variable PAYMENT_ENCRYPTION_KEY (au moins 32 caractères) dans Vercel puis redéployez. En attendant, aucune clé ne peut être enregistrée.</p>}
       <PaymentForm ready={ready} enabled={!!row.enabled} mode={row.mode === 'live' ? 'live' : 'sandbox'} sandbox={state('sandbox')} live={state('live')} updatedAt={row.updated_at ?? null} />
+      <ManualVerify />
       <div className="stack" style={{ gap: 12 }}>
         <h2 className="h3">Derniers paiements vérifiés</h2>
         {(txs ?? []).length === 0 ? <p className="muted">Aucun paiement en ligne pour le moment.</p> : (

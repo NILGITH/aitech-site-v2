@@ -1,6 +1,6 @@
 'use client'
 import { useActionState } from 'react'
-import { savePaymentSettings, type FormState } from '@/app/actions'
+import { adminVerifyPayment, savePaymentSettings, type FormState } from '@/app/actions'
 
 type KeyState = { public: string | null; private: string | null; secret: string | null }
 const init: FormState = { ok: false, message: '' }
@@ -39,6 +39,23 @@ export default function PaymentForm({ ready, enabled, mode, sandbox, live, updat
         <button className="btn" type="submit" disabled={pending || !ready}>{pending ? 'Enregistrement…' : 'Enregistrer les réglages'}</button>
         {updatedAt && <span className="muted">Dernière modification : {new Date(updatedAt).toLocaleString('fr-FR', { timeZone: 'Africa/Abidjan' })}</span>}
       </div>
+    </form>
+  )
+}
+
+/** Client qui a payé mais fermé la page avant la confirmation : on vérifie la transaction auprès de Kkiapay. */
+export function ManualVerify() {
+  const [state, action, pending] = useActionState(adminVerifyPayment, init)
+  return (
+    <form action={action} className="form" style={{ maxWidth: 760 }}>
+      <h2 className="h3">Enregistrer un paiement non confirmé</h2>
+      <p className="muted">Si un client a payé mais a fermé la page trop tôt, retrouvez le numéro de transaction dans votre tableau de bord Kkiapay : le site le vérifie auprès de Kkiapay avant de marquer la référence comme payée.</p>
+      <div className="two">
+        <div className="field"><label htmlFor="mv-ref">Référence (AIT-, FOR- ou EVT-)</label><input id="mv-ref" name="reference" required autoComplete="off" spellCheck={false} /></div>
+        <div className="field"><label htmlFor="mv-tx">Numéro de transaction Kkiapay</label><input id="mv-tx" name="transaction" required autoComplete="off" spellCheck={false} /></div>
+      </div>
+      {state.message && <p role="status" className={state.ok ? 'notice' : 'notice err'}>{state.message}</p>}
+      <button className="btn" type="submit" disabled={pending} style={{ alignSelf: 'flex-start' }}>{pending ? 'Vérification…' : 'Vérifier et enregistrer'}</button>
     </form>
   )
 }

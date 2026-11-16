@@ -29,7 +29,7 @@ async function payFor(kind: Pay['kind'], reference: string, name: string, email:
   if (!c?.enabled || !c.key || !due || Number(due) <= 0) return undefined
   return { kind, reference, amount: Number(due), key: c.key, sandbox: !!c.sandbox, name, email, phone }
 }
-const PAY_NOW = 'Réglez maintenant en ligne pour la confirmer (Mobile Money ou carte bancaire).'
+const PAY_NOW = 'Réglez maintenant en ligne pour la confirmer (Mobile Money ou carte bancaire), ou plus tard depuis la page « Payer en ligne » avec cette référence.'
 
 const LIMIT = 'Vous avez déjà envoyé plusieurs demandes. Réessayez dans une heure ou appelez-nous.'
 
@@ -144,6 +144,35 @@ export async function confirmPayment(kind: Pay['kind'], reference: string, trans
   if (error?.message?.includes('not_pending')) return { ok: true, message: `La référence ${reference} est déjà réglée. Merci !` }
   if (error) return fail(`Paiement reçu, mais l'enregistrement a échoué. Notre équipe le contrôle : référence ${reference}, transaction ${transactionId}.`)
   return { ok: true, message: `Paiement confirmé pour ${reference}. Merci ! Un e-mail de confirmation de Kkiapay vous a été envoyé.` }
+}
+
+const KIND_OF: Record<string, Pay['kind']> = { AIT: 'order', FOR: 'training', EVT: 'event' }
+
+/** Page publique « Payer en ligne » : retrouve une référence en attente grâce à l'e-mail utilisé. */
+export async function lookupPayment(_: FormState, f: FormData): Promise<FormState> {
+  const reference = str(f, 'reference').toUpperCase().replace(/\s+/g, ''), email = str(f, 'email')
+  if (!/^(AIT|FOR|EVT)-[A-F0-9]{8}$/.test(reference)) return { ok: false, message: 'Référence non reconnue. Elle ressemble à AIT-1A2B3C4D (commande), FOR-… (formation) ou EVT-… (événement).' }
+  if (!email) return { ok: false, message: "Indiquez l'adresse e-mail utilisée lors de la commande ou de l'inscription." }
+  const db = publicClient()
+  if (!db) return { ok: false, message: NOT_READY }
+  const { data } = await db.rpc('payment_lookup', { p_reference: reference, p_email: email })
+  const r = data as { kind: Pay['kind']; label: string; amount: number; status: string; name: string; phone: string } | null
+  if (!r) return { ok: false, message: 'Aucune commande ni inscription ne correspond à cette référence et cette adresse e-mail.' }
+  if (r.status === 'paid') return { ok: true, message: `${r.label} : déjà réglée. Merci !` }
+  if (r.status === 'cancelled' || r.status === 'failed') return { ok: false, message: `${r.label} : cette référence a été annulée. Contactez-nous si besoin.` }
+  if (!r.amount) return { ok: true, message: `${r.label} : rien à payer, c'est gratuit.` }
+  const pay = await payFor(r.kind, reference, r.name, email, r.phone)
+  if (!pay) return { ok: false, message: `${r.label} : ${new Intl.NumberFormat('fr-FR').format(r.amount)} FCFA à régler. Le paiement en ligne est momentanément indisponible : contactez-nous pour régler autrement.` }
+  return { ok: true, message: `${r.label} · montant à régler :`, pay }
+}
+
+/** Backoffice : enregistre un paiement Kkiapay que le client n'a pas pu finaliser sur le site (page fermée trop tôt). */
+export async function adminVerifyPayment(_: FormState, f: FormData): Promise<FormState> {
+  await requireAdmin()
+  const reference = str(f, 'reference').toUpperCase(), tx = str(f, 'transaction')
+  const kind = KIND_OF[reference.slice(0, 3)]
+  if (!kind) return { ok: false, message: 'Référence non reconnue (AIT-, FOR- ou EVT-).' }
+  return confirmPayment(kind, reference, tx)
 }
 
 /** Backoffice : enregistre les réglages Kkiapay. Les clés privées et secrètes sont chiffrées avant d'être stockées. */

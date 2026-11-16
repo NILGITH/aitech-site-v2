@@ -46,7 +46,7 @@ export function TrainingList({ trainings }: { trainings: Training[] }) {
   )
 }
 
-export function EnrollForm({ slug, title }: { slug: string; title: string }) {
+export function EnrollForm({ slug, title, paid = false, online = false }: { slug: string; title: string; paid?: boolean; online?: boolean }) {
   const [state, action, pending] = useActionState(enrollTraining, init)
   return (
     <form className="form" action={action} id="inscription">
@@ -63,7 +63,8 @@ export function EnrollForm({ slug, title }: { slug: string; title: string }) {
       <SpamGuard />
       {state.message && <p role="status" className={state.ok ? 'notice' : 'notice err'}>{state.message}</p>}
       {state.pay && <PayButton pay={state.pay} />}
-      <button className="btn" type="submit" disabled={pending} style={{ alignSelf: 'flex-start' }}>{pending ? 'Envoi…' : "Valider l'inscription"}</button>
+      {!state.ok && paid && online && <p className="paynote">Paiement en ligne sécurisé par Kkiapay : Mobile Money ou carte bancaire, juste après validation.</p>}
+      {!state.ok && <button className="btn" type="submit" disabled={pending} style={{ alignSelf: 'flex-start' }}>{pending ? 'Envoi…' : online && paid ? "S'inscrire et payer" : "Valider l'inscription"}</button>}
     </form>
   )
 }
