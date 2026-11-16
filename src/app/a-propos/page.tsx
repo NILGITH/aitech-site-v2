@@ -8,20 +8,20 @@ export const metadata = { title: 'À propos' }
 export default function Page() {
   return (
     <Site>
-      <PageHero title="Une histoire d'innovation" lead="Une entreprise technologique ivoirienne dédiée à l'accompagnement des entreprises, institutions et organisations dans leur transformation numérique." image="/images/meeting.jpg" stats={[['5+', "années d'expertise"], ['100+', 'projets réalisés'], ['50+', 'clients satisfaits'], ['10+', "pays d'intervention"]]} />
+      <PageHero title="Une histoire d'innovation" lead="Une entreprise technologique ivoirienne créée en 2018, qui accompagne les particuliers comme les entreprises, institutions et organisations dans leur transformation numérique." image="/images/meeting.jpg" stats={[['2018', 'année de création'], ['100+', 'projets réalisés'], ['60+', 'clients satisfaits'], ['10+', "pays d'intervention"]]} />
       <section className="section white">
         <div className="wrap grid2" style={{ alignItems: 'start' }}>
           <h2 className="h2">Née à Abidjan, tournée vers l&apos;Afrique</h2>
           <div className="stack muted" style={{ fontSize: 18, gap: 18 }}>
-            <p>AITECH Côte d&apos;Ivoire est une entreprise technologique basée à Abidjan, fondée par des experts en technologies de l&apos;information passionnés par l&apos;innovation et le développement numérique en Afrique.</p>
-            <p>Depuis notre création, nous nous sommes engagés à offrir des solutions digitales adaptées aux besoins spécifiques du marché africain, en combinant expertise technique, innovation et proximité client.</p>
-            <p>Notre équipe pluridisciplinaire conçoit et déploie chaque jour des solutions à forte valeur ajoutée qui contribuent à la transformation digitale des entreprises et organisations en Côte d&apos;Ivoire et dans la région.</p>
+            <p>AITECH Côte d&apos;Ivoire est une entreprise technologique basée à Abidjan, créée en 2018 par des experts en technologies de l&apos;information passionnés par l&apos;innovation et le développement numérique en Afrique.</p>
+            <p>Depuis 2018, nous nous sommes engagés à offrir des solutions digitales adaptées aux besoins spécifiques du marché africain, pour les particuliers comme pour les professionnels, en combinant expertise technique, innovation et proximité client.</p>
+            <p>Notre équipe pluridisciplinaire conçoit et déploie chaque jour des solutions à forte valeur ajoutée qui contribuent à la transformation digitale des particuliers, des entreprises et des organisations en Côte d&apos;Ivoire et dans la région.</p>
           </div>
         </div>
       </section>
       <section className="section">
         <div className="wrap cols">
-          <div className="col"><h3 className="h3" style={{ fontSize: 36 }}>Notre mission</h3><p className="muted" style={{ fontSize: 18 }}>Offrir des solutions numériques adaptées, fiables et évolutives aux acteurs économiques en Afrique de l&apos;Ouest, contribuant ainsi à la transformation digitale du continent et à la croissance des entreprises locales.</p></div>
+          <div className="col"><h3 className="h3" style={{ fontSize: 36 }}>Notre mission</h3><p className="muted" style={{ fontSize: 18 }}>Offrir des solutions numériques adaptées, fiables et évolutives aux particuliers et aux acteurs économiques en Afrique de l&apos;Ouest, contribuant ainsi à la transformation digitale du continent et à la croissance des entreprises locales.</p></div>
           <div className="col"><h3 className="h3" style={{ fontSize: 36 }}>Notre vision</h3><p className="muted" style={{ fontSize: 18 }}>Devenir un acteur de référence dans la digitalisation des services et la sécurisation des systèmes d&apos;information en Afrique, avec des solutions innovantes qui répondent aux défis spécifiques du marché africain.</p></div>
         </div>
       </section>

@@ -4,10 +4,11 @@ import { poll } from '@/lib/data'
 
 export default async function Dashboard() {
   const db = (await sessionClient())!
-  const [quotes, orders, votes] = await Promise.all([
+  const [quotes, orders, votes, regs] = await Promise.all([
     db.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     db.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     db.from('poll_votes').select('challenge'),
+    db.from('event_registrations').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
   ])
   const counts = poll.map((o) => ({ label: o.label, n: (votes.data ?? []).filter((v) => v.challenge === o.id).length }))
   const total = counts.reduce((s, c) => s + c.n, 0)
@@ -17,6 +18,7 @@ export default async function Dashboard() {
       <div className="cols">
         <Link href="/admin/devis" className="col" style={{ textDecoration: 'none' }}><span className="price" style={{ margin: 0 }}>{quotes.count ?? 0}</span><span className="muted">nouvelles demandes de devis</span></Link>
         <Link href="/admin/commandes" className="col" style={{ textDecoration: 'none' }}><span className="price" style={{ margin: 0 }}>{orders.count ?? 0}</span><span className="muted">commandes en attente de paiement</span></Link>
+        <Link href="/admin/participants" className="col" style={{ textDecoration: 'none' }}><span className="price" style={{ margin: 0 }}>{regs.count ?? 0}</span><span className="muted">inscriptions à des événements à confirmer</span></Link>
       </div>
       <div className="stack" style={{ gap: 12 }}>
         <h2 className="h3">Sondage : principal défi informatique ({total} votes)</h2>

@@ -15,7 +15,7 @@ export default async function Footer() {
           </div>
           <div className="stack" style={{ gap: 10 }}>
             <strong>Services</strong>
-            <Link href="/services">Connecter</Link><Link href="/services">Innover</Link><Link href="/services">Transformer</Link><Link href="/formations">Formations</Link><Link href="/boutique">Boutique</Link>
+            <Link href="/services">Connecter</Link><Link href="/services">Innover</Link><Link href="/services">Transformer</Link><Link href="/formations">Formations</Link><Link href="/evenements">Événements</Link><Link href="/boutique">Boutique</Link>
           </div>
           <div className="stack" style={{ gap: 10 }}>
             <strong>Entreprise</strong>

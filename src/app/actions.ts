@@ -90,6 +90,25 @@ export async function enrollTraining(_: FormState, f: FormData): Promise<FormSta
   return { ok: true, message: `Inscription ${reference} enregistrée. Le paiement en ligne n'est pas encore activé : nous vous contactons pour confirmer votre place et le règlement.` }
 }
 
+export async function registerEvent(_: FormState, f: FormData): Promise<FormState> {
+  const blocked = spam(f)
+  if (blocked) return blocked
+  const name = str(f, 'name'), email = str(f, 'email'), phone = str(f, 'phone')
+  if (!name || !email || !phone) return { ok: false, message: 'Merci de renseigner votre nom, votre e-mail et votre téléphone.' }
+  const db = publicClient()
+  if (!db) return { ok: false, message: NOT_READY }
+  const { data: reference, error } = await db.rpc('register_event', {
+    p_slug: str(f, 'slug'), p_name: name, p_email: email, p_phone: phone, p_company: str(f, 'company'),
+    p_seats: Math.min(10, Math.max(1, Math.floor(Number(str(f, 'seats')) || 1))), p_message: str(f, 'message'),
+  })
+  const e = error?.message ?? ''
+  if (e.includes('rate_limit')) return { ok: false, message: LIMIT }
+  if (e.includes('full')) return { ok: false, message: "Il n'y a plus assez de places pour cet événement. Réduisez le nombre de places ou contactez-nous." }
+  if (e.includes('closed')) return { ok: false, message: 'Les inscriptions à cet événement sont fermées.' }
+  if (error || !reference) return { ok: false, message: "L'inscription n'a pas pu être enregistrée. Réessayez dans un instant." }
+  return { ok: true, message: `Inscription ${reference} enregistrée. Vous recevrez une confirmation de notre équipe.` }
+}
+
 export async function signIn(_: FormState, f: FormData): Promise<FormState> {
   const db = await sessionClient()
   if (!db) return { ok: false, message: "La base de données n'est pas encore connectée." }
@@ -117,6 +136,13 @@ export async function setEnrollmentStatus(f: FormData) {
   revalidatePath('/admin/inscriptions')
 }
 
+export async function setRegistrationStatus(f: FormData) {
+  const db = await requireAdmin()
+  await db.from('event_registrations').update({ status: str(f, 'status') }).eq('id', str(f, 'id'))
+  revalidatePath('/admin/participants')
+  revalidatePath('/evenements', 'layout')
+}
+
 export async function setOrderStatus(f: FormData) {
   const db = await requireAdmin()
   const status = str(f, 'status')
@@ -133,7 +159,8 @@ export async function saveRow(f: FormData) {
   for (const field of def.fields) {
     const raw = str(f, field.name)
     if (field.type === 'bool') row[field.name] = f.get(field.name) === 'on'
-    else if (field.type === 'number') row[field.name] = Number(raw || 0)
+    else if (field.type === 'number') row[field.name] = raw === '' && !field.required ? null : Number(raw)
+    else if (field.type === 'datetime') row[field.name] = raw ? `${raw}:00+00:00` : null
     else if (field.type === 'list') row[field.name] = raw.split('\n').map((s) => s.trim()).filter(Boolean)
     else if (field.type === 'json') { try { row[field.name] = JSON.parse(raw) } catch { return } }
     else if (field.type === 'ref' && raw === '') return

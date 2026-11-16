@@ -1,4 +1,4 @@
-export type Field = { name: string; label: string; type: 'text' | 'textarea' | 'number' | 'bool' | 'list' | 'select' | 'json' | 'image' | 'ref'; required?: boolean; options?: string[]; ref?: { table: string; label: string } }
+export type Field = { name: string; label: string; type: 'text' | 'textarea' | 'number' | 'bool' | 'list' | 'select' | 'json' | 'image' | 'ref' | 'datetime'; required?: boolean; options?: string[]; ref?: { table: string; label: string } }
 export type TableDef = { label: string; key: string; order: string; title: string; fields: Field[] }
 
 const pos: Field = { name: 'position', label: 'Ordre', type: 'number' }
@@ -60,6 +60,20 @@ export const TABLES: Record<string, TableDef> = {
     { name: 'title', label: 'Titre du module', type: 'text', required: true },
     { name: 'content', label: 'Contenu', type: 'textarea' },
     { name: 'duration', label: 'Durée', type: 'text' }, pos, pub] },
+  events: { label: 'Événements', key: 'id', order: 'starts_at', title: 'title', fields: [
+    { name: 'title', label: 'Titre', type: 'text', required: true },
+    { name: 'slug', label: 'Identifiant (sans espace)', type: 'text', required: true },
+    { name: 'category', label: 'Catégorie', type: 'select', options: ['Conférence', 'Atelier', 'Webinaire', 'Salon', 'Lancement', 'Autre'], required: true },
+    { name: 'format', label: 'Format', type: 'select', options: ['Présentiel', 'En ligne', 'Hybride'], required: true },
+    { name: 'starts_at', label: 'Début (heure d’Abidjan)', type: 'datetime', required: true },
+    { name: 'ends_at', label: 'Fin (heure d’Abidjan)', type: 'datetime' },
+    { name: 'location', label: 'Lieu ou lien', type: 'text' },
+    { name: 'summary', label: 'Résumé', type: 'textarea', required: true },
+    { name: 'description', label: 'Programme détaillé', type: 'textarea' },
+    { name: 'price_xof', label: 'Prix par place (FCFA, 0 = gratuit)', type: 'number', required: true },
+    { name: 'capacity', label: 'Nombre de places (vide = illimité)', type: 'number' },
+    { name: 'registration_open', label: 'Inscriptions ouvertes', type: 'bool' },
+    { name: 'image_url', label: 'Image', type: 'image' }, pub] },
   faqs: { label: 'Chatbot : questions fréquentes', key: 'id', order: 'position', title: 'question', fields: [
     { name: 'question', label: 'Question', type: 'text', required: true },
     { name: 'answer', label: 'Réponse ({phones}, {email}, {address}, {hours} sont remplacés)', type: 'textarea', required: true },

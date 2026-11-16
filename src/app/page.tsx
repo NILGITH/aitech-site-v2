@@ -19,7 +19,7 @@ export default async function Home() {
         <HeroSlider slides={slides} />
         <Poll options={poll} />
         <section className="section white" style={{ paddingTop: 0 }}>
-          <div className="wrap"><p className="big">Depuis plus de 5 ans, AITECH a livré plus de 100 projets pour plus de 50 clients, avec un support technique disponible 24 h sur 24, 7 jours sur 7.</p></div>
+          <div className="wrap"><p className="big">Depuis 2018, AITECH a livré plus de 100 projets pour plus de 60 clients, entreprises comme particuliers, avec un support technique disponible 24 h sur 24, 7 jours sur 7.</p></div>
         </section>
         <section className="section">
           <div className="wrap stack" style={{ gap: 44 }}>

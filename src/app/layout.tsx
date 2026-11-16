@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: { type: 'website', siteName: "AITECH Côte d'Ivoire", locale: 'fr_CI' },
   twitter: { card: 'summary_large_image' },
   title: { default: "AITECH Côte d'Ivoire — Connecter, Innover, Transformer", template: '%s | AITECH' },
-  description: "AITECH Côte d'Ivoire installe, développe et sécurise vos outils numériques : réseaux, vidéosurveillance, applications web et mobiles, paiement mobile.",
+  description: "AITECH Côte d'Ivoire installe, développe et sécurise les outils numériques des entreprises et des particuliers : réseaux, vidéosurveillance, applications web et mobiles, paiement mobile.",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

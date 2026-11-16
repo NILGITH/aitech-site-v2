@@ -23,6 +23,15 @@ function Input({ field, row, uid, table, refs }: { field: Field; row?: Row; uid:
       </div>
     )
   }
+  if (field.type === 'datetime') {
+    const local = v ? new Date(String(v)).toISOString().slice(0, 16) : ''
+    return (
+      <div className="field">
+        <label htmlFor={id}>{field.label}{field.required ? ' *' : ''}</label>
+        <input id={id} name={field.name} type="datetime-local" defaultValue={local} required={field.required} />
+      </div>
+    )
+  }
   if (field.type === 'bool') {
     return <label htmlFor={id} className="row" style={{ gap: 8, minHeight: 44 }}><input id={id} type="checkbox" name={field.name} defaultChecked={row ? Boolean(v) : true} style={{ width: 22, height: 22 }} />{field.label}</label>
   }
@@ -65,7 +74,7 @@ export default async function ContentTable({ params }: { params: Promise<{ table
   const def = TABLES[table]
   if (!def) notFound()
   const db = (await sessionClient())!
-  const { data } = await db.from(table).select('*').order(def.order, { ascending: true })
+  const { data } = await db.from(table).select('*').order(def.order, { ascending: def.order !== 'starts_at' })
   const rows = (data ?? []) as Row[]
   const refs: Refs = {}
   for (const f of def.fields) {

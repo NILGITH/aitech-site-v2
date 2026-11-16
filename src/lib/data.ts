@@ -37,6 +37,16 @@ export async function getTrainings(): Promise<Training[]> {
   }
   return seed.trainings as Training[]
 }
+export type EventItem = { slug: string; title: string; category: string; format: string; starts_at: string; ends_at: string | null; location: string | null; summary: string; description: string | null; image_url: string | null; price_xof: number; capacity: number | null; registration_open: boolean; seats_left?: number | null }
+
+export async function getEvents(): Promise<EventItem[]> {
+  const db = publicClient()
+  if (db) {
+    const { data } = await db.from('events_public').select('*').order('starts_at', { ascending: true })
+    if (data && data.length > 0) return data as EventItem[]
+  }
+  return seed.events as EventItem[]
+}
 export const getFaqs = () => rows<Faq>('faqs', seed.faqs)
 export const getProducts = () => rows<Product>('products', seed.products)
 
