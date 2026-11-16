@@ -15,7 +15,7 @@ export default function Header() {
   return (
     <div className="top">
       <header className={open ? 'nav open' : 'nav'}>
-        <Link href="/" className="logo"><img src="/images/logo.png" alt="Aitech" /></Link>
+        <Link href="/" className="logo"><img src="/images/logo.png" alt="Aitech, retour à l'accueil" width={440} height={284} /></Link>
         <button type="button" className="nav-toggle" aria-expanded={open} aria-controls="nav-main" onClick={() => setOpen((o) => !o)}>
           <span aria-hidden="true" />{open ? 'Fermer' : 'Menu'}
         </button>

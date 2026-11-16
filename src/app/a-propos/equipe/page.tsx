@@ -14,7 +14,7 @@ export default async function Page() {
         <div className="wrap cols">
           {team.map((m) => (
             <article key={m.name} className="stack" style={{ gap: 12 }}>
-              {m.photo_url ? <img className="thumb" style={{ height: 260 }} src={m.photo_url} alt={m.name} /> : <div className="ph-empty">Photo à venir</div>}
+              {m.photo_url ? <img className="thumb" style={{ height: 260 }} src={m.photo_url} alt={`Portrait de ${m.name}, ${m.role}`} loading="lazy" decoding="async" /> : <div className="ph-empty">Photo à venir</div>}
               <span className="tag">{m.role}</span>
               <h3 className="h3">{m.name}</h3>
               {m.bio && <p className="muted" style={{ fontSize: 16 }}>{m.bio}</p>}

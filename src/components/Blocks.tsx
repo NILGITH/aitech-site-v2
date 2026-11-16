@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import { getSettings } from '@/lib/data'
+import { altFor, photo } from '@/lib/alt'
 
 export function BlobPhoto({ src, alt = '' }: { src: string; alt?: string }) {
   return (
     <div className="blob">
       <span className="a" aria-hidden="true" />
       <span className="b" aria-hidden="true" />
-      <img className="ph" src={src} alt={alt} />
-      <span className="badge"><img src="/images/icon.png" alt="" /></span>
+      <img className="ph" {...photo(src)} alt={alt || altFor(src, 'Illustration AITECH')} width={900} height={900} fetchPriority="high" />
+      <span className="badge"><img src="/images/icon.png" alt="" width={400} height={249} /></span>
     </div>
   )
 }

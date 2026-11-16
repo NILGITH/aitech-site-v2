@@ -8,7 +8,7 @@ export default async function Footer() {
       <div className="wrap">
         <div className="cols">
           <div className="stack" style={{ gap: 10 }}>
-            <img src="/images/logo-white.png" alt="Aitech" style={{ height: 64, width: 'auto', alignSelf: 'flex-start' }} />
+            <img src="/images/logo-white.png" alt="Aitech" width={360} height={216} loading="lazy" style={{ height: 64, width: 'auto', alignSelf: 'flex-start' }} />
             <span>Votre défi, notre mission.</span>
             <span>{s.address}</span>
             <a href={`mailto:${s.email}`}>{s.email}</a>

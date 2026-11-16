@@ -1,9 +1,11 @@
 'use client'
 import { useActionState, useState } from 'react'
 import Link from 'next/link'
+import SpamGuard from './SpamGuard'
 import { enrollTraining, type FormState } from '@/app/actions'
 import type { Training } from '@/lib/data'
 import { formatXof } from '@/lib/format'
+import { photo } from '@/lib/alt'
 
 const init: FormState = { ok: false, message: '' }
 const uniq = (list: string[]) => [...new Set(list)]
@@ -29,7 +31,7 @@ export function TrainingList({ trainings }: { trainings: Training[] }) {
       <div className="trainings">
         {shown.map((t) => (
           <Link key={t.slug} href={`/formations/${t.slug}`} className="training">
-            <img className="thumb" src={t.image_url ?? '/images/tech.jpg'} alt="" />
+            <img className="thumb" {...photo(t.image_url ?? '/images/tech.jpg', '(max-width: 760px) 90vw, 33vw')} alt={`Formation ${t.title}`} loading="lazy" decoding="async" />
             <div className="training-body">
               <div className="tags"><span>{t.type}</span><span>{t.level}</span>{t.duration && <span>{t.duration}</span>}</div>
               <h2 className="h3">{t.title}</h2>
@@ -57,6 +59,7 @@ export function EnrollForm({ slug, title }: { slug: string; title: string }) {
       </div>
       <div className="field"><label htmlFor="e-company">Entreprise</label><input id="e-company" name="company" autoComplete="organization" /></div>
       <div className="field"><label htmlFor="e-msg">Précisions (disponibilités, nombre de participants)</label><textarea id="e-msg" name="message" rows={3} /></div>
+      <SpamGuard />
       {state.message && <p role="status" className={state.ok ? 'notice' : 'notice err'}>{state.message}</p>}
       <button className="btn" type="submit" disabled={pending} style={{ alignSelf: 'flex-start' }}>{pending ? 'Envoi…' : "Valider l'inscription"}</button>
     </form>

@@ -1,6 +1,7 @@
 import Site from '@/components/Site'
 import { Cta, PageHero } from '@/components/Blocks'
 import { getPosts } from '@/lib/data'
+import { photo } from '@/lib/alt'
 
 export const revalidate = 60
 export const metadata = { title: 'Blog' }
@@ -15,7 +16,7 @@ export default async function Page() {
         <div className="wrap stack" style={{ gap: 36 }}>
           {first && (
             <article className="grid2" style={{ alignItems: 'stretch' }}>
-              <img className="thumb" style={{ height: '100%', minHeight: 300, borderRadius: 28 }} src="/images/tech.jpg" alt="" />
+              <img className="thumb" style={{ height: '100%', minHeight: 300, borderRadius: 28 }} {...photo('/images/tech.jpg')} alt="Technicien contrôlant une baie de serveurs avec un appareil de mesure" loading="lazy" decoding="async" />
               <div className="stack" style={{ justifyContent: 'center', gap: 14 }}>
                 <span className="tag">{first.category}, à la une</span>
                 <h2 className="h2">{first.title}</h2>

@@ -1,4 +1,5 @@
 'use client'
+import SpamGuard from './SpamGuard'
 import { useActionState, useState } from 'react'
 import { createOrder, submitQuote, type FormState } from '@/app/actions'
 import { formatXof } from '@/lib/format'
@@ -26,6 +27,7 @@ export function QuoteForm({ challenge }: { challenge?: string }) {
         <div className="field"><label htmlFor="q-subject">Sujet</label><input id="q-subject" name="subject" /></div>
       </div>
       <div className="field"><label htmlFor="q-msg">Votre besoin *</label><textarea id="q-msg" name="message" rows={5} required /></div>
+      <SpamGuard />
       <Notice state={state} />
       <button className="btn" type="submit" disabled={pending} style={{ alignSelf: 'flex-start' }}>{pending ? 'Envoi…' : 'Envoyer la demande'}</button>
     </form>
@@ -44,7 +46,7 @@ export function Shop({ products }: { products: Product[] }) {
         {products.map((p) => (
           <article key={p.slug} className="col">
             <span className="tag">{p.category}</span>
-            <h3 className="h3">{p.name}</h3>
+            <h2 className="h3">{p.name}</h2>
             <p className="muted">{p.description}</p>
             <p className="price">{new Intl.NumberFormat('fr-FR').format(p.price_xof)} <small>FCFA</small></p>
             <button type="button" className="btn small" style={{ alignSelf: 'flex-start' }} onClick={() => add(p.slug, 1)}>Ajouter au panier</button>
@@ -75,7 +77,8 @@ export function Shop({ products }: { products: Product[] }) {
           <div className="field"><label htmlFor="o-phone">Téléphone *</label><input id="o-phone" name="phone" type="tel" required autoComplete="tel" /></div>
         </div>
         <div className="field"><label htmlFor="o-email">E-mail *</label><input id="o-email" name="email" type="email" required autoComplete="email" /></div>
-        <Notice state={state} />
+        <SpamGuard />
+      <Notice state={state} />
         <button className="btn" type="submit" disabled={pending || lines.length === 0} style={{ alignSelf: 'flex-start' }}>{pending ? 'Enregistrement…' : 'Valider la commande'}</button>
       </form>
     </div>

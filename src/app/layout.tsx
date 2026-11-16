@@ -1,7 +1,15 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
+import { Analytics } from '@vercel/analytics/next'
+import { SITE_URL } from '@/lib/site'
 import './globals.css'
 
+export const viewport: Viewport = { themeColor: '#F1F1EF' }
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: './' },
+  openGraph: { type: 'website', siteName: "AITECH Côte d'Ivoire", locale: 'fr_CI' },
+  twitter: { card: 'summary_large_image' },
   title: { default: "AITECH Côte d'Ivoire — Connecter, Innover, Transformer", template: '%s | AITECH' },
   description: "AITECH Côte d'Ivoire installe, développe et sécurise vos outils numériques : réseaux, vidéosurveillance, applications web et mobiles, paiement mobile.",
 }
@@ -14,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap" />
       </head>
-      <body>{children}</body>
+      <body>{children}<Analytics /></body>
     </html>
   )
 }

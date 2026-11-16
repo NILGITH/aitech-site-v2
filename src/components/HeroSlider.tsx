@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { altFor, photo } from '@/lib/alt'
 import { useEffect, useState } from 'react'
 import type { Slide } from '@/lib/data'
 
@@ -50,8 +51,8 @@ export default function HeroSlider({ slides }: { slides: Slide[] }) {
           <div className="layer">
             {items.map((s, i) => { const q = slot(i); return <span key={s.tab_label} className="mv" aria-hidden="true" style={{ left: `${q[0]}%`, top: `${q[1]}%`, width: `${q[2]}%`, background: COLORS[i] }} /> })}
           </div>
-          {items.map((s, i) => { const q = slot(i); return <img key={s.tab_label} className="mv" src={s.image_url ?? '/images/tech.jpg'} alt="" style={{ left: `${q[0] + 3}%`, top: `${q[1] + 3}%`, width: `${q[2] - 6}%` }} /> })}
-          <span className="badge"><img src="/images/icon.png" alt="" /></span>
+          {items.map((s, i) => { const q = slot(i); return <img key={s.tab_label} className="mv" {...photo(s.image_url ?? '/images/tech.jpg', '(max-width: 760px) 60vw, 30vw')} alt={altFor(s.image_url ?? '/images/tech.jpg', `Illustration : ${s.tab_label}`)} fetchPriority={i === 0 ? 'high' : 'auto'} style={{ left: `${q[0] + 3}%`, top: `${q[1] + 3}%`, width: `${q[2] - 6}%` }} /> })}
+          <span className="badge"><img src="/images/icon.png" alt="" width={400} height={249} /></span>
         </div>
       </div>
     </section>

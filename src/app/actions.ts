@@ -9,6 +9,17 @@ export type FormState = { ok: boolean; message: string }
 const NOT_READY = "La base de données n'est pas encore connectée : votre demande n'a pas pu être enregistrée. Appelez-nous ou écrivez-nous directement."
 const str = (f: FormData, k: string) => String(f.get(k) ?? '').trim()
 
+/** Anti-spam : champ piège rempli (robot) ou formulaire renvoyé en moins de 3 secondes. */
+function spam(f: FormData): FormState | null {
+  if (str(f, 'website')) return { ok: true, message: 'Votre demande est bien enregistrée.' }
+  const opened = Number(str(f, '_t'))
+  if (!opened || Date.now() - opened < 3000 || Date.now() - opened > 1000 * 60 * 60 * 12) {
+    return { ok: false, message: 'Envoi trop rapide ou formulaire expiré. Patientez quelques secondes puis renvoyez le formulaire.' }
+  }
+  return null
+}
+const LIMIT = 'Vous avez déjà envoyé plusieurs demandes. Réessayez dans une heure ou appelez-nous.'
+
 export async function recordVote(challenge: string) {
   const db = publicClient()
   if (!db) return
@@ -16,6 +27,8 @@ export async function recordVote(challenge: string) {
 }
 
 export async function submitQuote(_: FormState, f: FormData): Promise<FormState> {
+  const blocked = spam(f)
+  if (blocked) return blocked
   const name = str(f, 'name'), email = str(f, 'email'), message = str(f, 'message')
   if (!name || !email || !message) return { ok: false, message: 'Merci de renseigner votre nom, votre e-mail et votre message.' }
   if (!/^\S+@\S+\.\S+$/.test(email)) return { ok: false, message: "L'adresse e-mail ne semble pas valide." }
@@ -25,11 +38,14 @@ export async function submitQuote(_: FormState, f: FormData): Promise<FormState>
     name, email, message, phone: str(f, 'phone') || null, company: str(f, 'company') || null,
     subject: str(f, 'subject') || null, challenge: str(f, 'challenge') || null,
   })
+  if (error?.message?.includes('rate_limit')) return { ok: false, message: LIMIT }
   if (error) return { ok: false, message: "L'envoi a échoué. Réessayez dans un instant ou appelez-nous." }
   return { ok: true, message: 'Votre demande est bien enregistrée. Nous vous répondons sous 24h.' }
 }
 
 export async function createOrder(_: FormState, f: FormData): Promise<FormState> {
+  const blocked = spam(f)
+  if (blocked) return blocked
   const name = str(f, 'name'), email = str(f, 'email'), phone = str(f, 'phone')
   let cart: Record<string, number> = {}
   try { cart = JSON.parse(str(f, 'cart') || '{}') } catch { /* panier illisible */ }
@@ -41,6 +57,7 @@ export async function createOrder(_: FormState, f: FormData): Promise<FormState>
   // Les prix sont relus dans la base par place_order : le navigateur n'envoie que les quantités.
   const quantities = Object.fromEntries(slugs.map((k) => [k, String(Math.floor(cart[k]))]))
   const { data: reference, error } = await db.rpc('place_order', { p_name: name, p_email: email, p_phone: phone, p_cart: quantities })
+  if (error?.message?.includes('rate_limit')) return { ok: false, message: LIMIT }
   if (error?.message?.includes('empty_cart')) return { ok: false, message: 'Ces produits ne sont plus disponibles.' }
   if (error || !reference) return { ok: false, message: "La commande n'a pas pu être enregistrée. Réessayez dans un instant." }
   return { ok: true, message: `Commande ${reference} enregistrée. Le paiement en ligne n'est pas encore activé : nous vous contactons pour le règlement.` }
@@ -58,6 +75,8 @@ async function requireAdmin() {
 }
 
 export async function enrollTraining(_: FormState, f: FormData): Promise<FormState> {
+  const blocked = spam(f)
+  if (blocked) return blocked
   const name = str(f, 'name'), email = str(f, 'email'), phone = str(f, 'phone')
   if (!name || !email || !phone) return { ok: false, message: 'Merci de renseigner votre nom, votre e-mail et votre téléphone.' }
   const db = publicClient()
@@ -65,6 +84,7 @@ export async function enrollTraining(_: FormState, f: FormData): Promise<FormSta
   const { data: reference, error } = await db.rpc('enroll_training', {
     p_slug: str(f, 'slug'), p_name: name, p_email: email, p_phone: phone, p_company: str(f, 'company'), p_message: str(f, 'message'),
   })
+  if (error?.message?.includes('rate_limit')) return { ok: false, message: LIMIT }
   if (error?.message?.includes('unknown_training')) return { ok: false, message: "Cette formation n'est plus ouverte aux inscriptions." }
   if (error || !reference) return { ok: false, message: "L'inscription n'a pas pu être enregistrée. Réessayez dans un instant." }
   return { ok: true, message: `Inscription ${reference} enregistrée. Le paiement en ligne n'est pas encore activé : nous vous contactons pour confirmer votre place et le règlement.` }

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Site from '@/components/Site'
 import { EnrollForm } from '@/components/Trainings'
 import { formatXof, getTrainings } from '@/lib/data'
+import { photo } from '@/lib/alt'
 
 export const revalidate = 60
 
@@ -28,7 +29,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
             <div className="row"><span className="price">{formatXof(t.price_xof)}</span><a className="btn" href="#inscription">S&apos;inscrire</a></div>
             {t.next_session && <p className="muted">{t.next_session}</p>}
           </div>
-          <img className="training-cover" src={t.image_url ?? '/images/tech.jpg'} alt="" />
+          <img className="training-cover" {...photo(t.image_url ?? '/images/tech.jpg', '(max-width: 760px) 90vw, 33vw')} alt={`Formation ${t.title}`} />
         </div>
       </section>
       <section className="section white">
