@@ -1,45 +1,46 @@
+import { Suspense } from 'react'
 import { requirePerm } from '@/lib/access'
 import { setEnrollmentStatus } from '@/app/actions'
-import { formatXof } from '@/lib/data'
 import { sessionClient } from '@/lib/supabase'
 import PaymentCell from '@/components/PaymentCell'
+import StatusSelect, { type StatusOption } from '@/components/admin/StatusSelect'
+import ListToolbar from '@/components/admin/ListToolbar'
+import Contact from '@/components/admin/Contact'
+import { day, filterRows, money, time } from '@/lib/adminList'
 
-const LABEL: Record<string, string> = { pending: 'En attente', confirmed: 'Confirmée', partial: 'Acompte versé', paid: 'Payée', cancelled: 'Annulée' }
-const BADGE: Record<string, string> = { pending: 'pending', confirmed: 'in_progress', partial: 'in_progress', paid: 'paid', cancelled: '' }
+const OPTS: StatusOption[] = [
+  { value: 'pending', label: 'En attente', tone: 'warn' }, { value: 'confirmed', label: 'Confirmée', tone: 'info' },
+  { value: 'partial', label: 'Acompte versé', tone: 'info' }, { value: 'paid', label: 'Payée', tone: 'ok' }, { value: 'cancelled', label: 'Annulée', tone: 'off' },
+]
 
-export default async function Enrollments() {
+export default async function Enrollments({ searchParams }: { searchParams: Promise<{ statut?: string; q?: string }> }) {
   await requirePerm('formations')
+  const { statut, q } = await searchParams
   const db = (await sessionClient())!
-  const { data } = await db.from('training_enrollments').select('*').order('created_at', { ascending: false }).limit(300)
+  const { data } = await db.from('training_enrollments').select('*').order('created_at', { ascending: false }).limit(500)
+  const { shown, counts } = filterRows(data ?? [], OPTS, statut, q, (e) => [e.reference, e.full_name, e.email, e.phone, e.company, e.training_title])
   return (
-    <div className="stack" style={{ gap: 24 }}>
-      <h1 className="h2">Inscriptions aux formations</h1>
-      {(data ?? []).length === 0 && <p className="muted">Aucune inscription pour le moment. Les inscriptions envoyées depuis les pages Formations apparaîtront ici.</p>}
-      <div className="scroll">
-        <table className="table">
-          <thead><tr><th>Référence</th><th>Date</th><th>Formation</th><th>Participant</th><th>Montant</th><th>Paiement</th><th>Statut</th><th></th></tr></thead>
+    <div className="stack">
+      <div className="a-head"><div><h1 className="h2">Inscriptions aux formations</h1><p>Changez le statut directement dans la liste : il est enregistré aussitôt.</p></div></div>
+      <Suspense><ListToolbar statuses={counts} placeholder="Rechercher un nom, une référence, une formation…" /></Suspense>
+      <div className="a-card"><div className="scroll">
+        <table className="a-table">
+          <thead><tr><th>Référence</th><th>Participant</th><th>Formation</th><th className="num">Montant</th><th>Paiement</th><th>Statut</th></tr></thead>
           <tbody>
-            {(data ?? []).map((e) => (
+            {shown.map((e) => (
               <tr key={e.id}>
-                <td><strong>{e.reference}</strong></td>
-                <td>{new Date(e.created_at).toLocaleDateString('fr-FR')}</td>
-                <td>{e.training_title}</td>
-                <td>{e.full_name}{e.company ? ` (${e.company})` : ''}<br /><a href={`mailto:${e.email}`}>{e.email}</a><br />{e.phone}{e.message && <><br /><span className="muted">{e.message}</span></>}</td>
-                <td>{formatXof(e.amount_xof)}</td>
+                <td><span className="a-ref">{e.reference}</span><span className="a-sub">{day(e.created_at)} · {time(e.created_at)}</span></td>
+                <td><Contact name={e.full_name} company={e.company} email={e.email} phone={e.phone} note={e.message} /></td>
+                <td style={{ minWidth: 200 }}>{e.training_title}</td>
+                <td className="num">{money(e.amount_xof)}</td>
                 <td><PaymentCell status={e.status} amount={e.amount_xof} provider={e.payment_provider} paymentRef={e.payment_ref} paidAt={e.paid_at} reference={e.reference} amountPaid={e.amount_paid} plan={e.plan} /></td>
-                <td><span className={`badge-s ${BADGE[e.status]}`}>{LABEL[e.status]}</span></td>
-                <td>
-                  <form action={setEnrollmentStatus} className="row" style={{ gap: 8 }}>
-                    <input type="hidden" name="id" value={e.id} />
-                    <select name="status" defaultValue={e.status} aria-label={`Statut de l'inscription ${e.reference}`} style={{ minHeight: 44 }}>{Object.entries(LABEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
-                    <button className="btn small" type="submit">Enregistrer</button>
-                  </form>
-                </td>
+                <td><StatusSelect action={setEnrollmentStatus} id={e.id} value={e.status} options={OPTS} label={`Statut de l'inscription ${e.reference}`} /></td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+        {shown.length === 0 && <p className="a-empty">{(data ?? []).length ? 'Aucune inscription ne correspond à ces filtres.' : 'Aucune inscription pour le moment. Les inscriptions envoyées depuis les pages Formations apparaîtront ici.'}</p>}
+      </div></div>
     </div>
   )
 }

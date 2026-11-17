@@ -1,36 +1,50 @@
+import { Suspense } from 'react'
 import { requirePerm } from '@/lib/access'
 import { setQuoteStatus } from '@/app/actions'
 import { sessionClient } from '@/lib/supabase'
+import StatusSelect, { type StatusOption } from '@/components/admin/StatusSelect'
+import ListToolbar from '@/components/admin/ListToolbar'
+import Contact from '@/components/admin/Contact'
+import NoteField from '@/components/admin/NoteField'
+import { day, filterRows, time } from '@/lib/adminList'
 
-const LABEL: Record<string, string> = { new: 'Nouvelle', in_progress: 'En cours', done: 'Traitée' }
+const OPTS: StatusOption[] = [
+  { value: 'new', label: 'Nouvelle', tone: 'warn' }, { value: 'in_progress', label: 'En cours', tone: 'info' }, { value: 'done', label: 'Traitée', tone: 'ok' },
+]
 
-export default async function Quotes() {
+export default async function Quotes({ searchParams }: { searchParams: Promise<{ statut?: string; q?: string }> }) {
   await requirePerm('devis')
+  const { statut, q } = await searchParams
   const db = (await sessionClient())!
-  const { data } = await db.from('quote_requests').select('*').order('created_at', { ascending: false }).limit(200)
+  const { data } = await db.from('quote_requests').select('*').order('created_at', { ascending: false }).limit(500)
+  const { shown, counts } = filterRows(data ?? [], OPTS, statut, q, (r) => [r.name, r.company, r.email, r.phone, r.subject, r.message])
   return (
-    <div className="stack" style={{ gap: 24 }}>
-      <h1 className="h2">Demandes de devis</h1>
-      {(data ?? []).length === 0 && <p className="muted">Aucune demande pour le moment. Les demandes envoyées depuis la page Contact apparaîtront ici.</p>}
-      {(data ?? []).map((q) => (
-        <article key={q.id} className="col" style={{ gap: 10 }}>
-          <div className="row" style={{ justifyContent: 'space-between' }}>
-            <strong className="h3" style={{ fontSize: 22 }}>{q.name}{q.company ? `, ${q.company}` : ''}</strong>
-            <span className={`badge-s ${q.status}`}>{LABEL[q.status]}</span>
-          </div>
-          <span className="muted">{new Date(q.created_at).toLocaleString('fr-FR')} — <a href={`mailto:${q.email}`}>{q.email}</a>{q.phone ? ` — ${q.phone}` : ''}</span>
-          {q.subject && <strong>{q.subject}</strong>}
-          {q.challenge && <span className="tag">Défi choisi : {q.challenge}</span>}
-          <p style={{ whiteSpace: 'pre-wrap' }}>{q.message}</p>
-          <form action={setQuoteStatus} className="two" style={{ alignItems: 'end' }}>
-            <input type="hidden" name="id" value={q.id} />
-            <div className="field"><label htmlFor={`s-${q.id}`}>Statut</label>
-              <select id={`s-${q.id}`} name="status" defaultValue={q.status}>{Object.entries(LABEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
-            <div className="field"><label htmlFor={`n-${q.id}`}>Note interne</label><input id={`n-${q.id}`} name="admin_notes" defaultValue={q.admin_notes ?? ''} /></div>
-            <button className="btn small" type="submit">Enregistrer</button>
-          </form>
-        </article>
-      ))}
+    <div className="stack">
+      <div className="a-head"><div><h1 className="h2">Demandes de devis</h1><p>Cliquez sur une demande pour lire le message complet. Statut et note interne sont enregistrés aussitôt.</p></div></div>
+      <Suspense><ListToolbar statuses={counts} placeholder="Rechercher un nom, une entreprise, un sujet…" /></Suspense>
+      <div className="a-card"><div className="scroll">
+        <table className="a-table">
+          <thead><tr><th>Reçue le</th><th>Contact</th><th>Demande</th><th>Note interne</th><th>Statut</th></tr></thead>
+          <tbody>
+            {shown.map((r) => (
+              <tr key={r.id} style={{ verticalAlign: 'top' }}>
+                <td className="nowrap">{day(r.created_at)}<span className="a-sub">{time(r.created_at)}</span></td>
+                <td><Contact name={r.name} company={r.company} email={r.email} phone={r.phone} /></td>
+                <td style={{ minWidth: 260 }}>
+                  <details className="a-msg">
+                    <summary><strong>{r.subject || 'Demande de devis'}</strong><span>{r.message}</span></summary>
+                    <p>{r.message}</p>
+                    {r.challenge && <p className="a-sub">Défi choisi au sondage : {r.challenge}</p>}
+                  </details>
+                </td>
+                <td style={{ minWidth: 180 }}><NoteField id={r.id} value={r.admin_notes ?? ''} action={setQuoteStatus} /></td>
+                <td><StatusSelect action={setQuoteStatus} id={r.id} value={r.status} options={OPTS} label={`Statut de la demande de ${r.name}`} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {shown.length === 0 && <p className="a-empty">{(data ?? []).length ? 'Aucune demande ne correspond à ces filtres.' : 'Aucune demande pour le moment. Les demandes envoyées depuis la page Contact apparaîtront ici.'}</p>}
+      </div></div>
     </div>
   )
 }

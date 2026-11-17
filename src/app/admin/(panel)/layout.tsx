@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { signOut } from '@/app/actions'
 import { can, getAccess, type Perm } from '@/lib/access'
 import { TABLES } from '@/lib/tables'
+import NavLink from '@/components/admin/NavLink'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Backoffice', robots: { index: false } }
@@ -38,7 +39,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           return (
             <div key={i} style={{ display: 'contents' }}>
               {g.title && (g.title === 'Paramètres' ? <Link href="/admin/parametres" className="grp grp-link">{g.title}</Link> : <span className="grp">{g.title}</span>)}
-              {items.map((it) => <Link key={it.href} href={it.href}>{it.label}</Link>)}
+              {items.map((it) => <NavLink key={it.href} href={it.href}>{it.label}</NavLink>)}
             </div>
           )
         })}

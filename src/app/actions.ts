@@ -455,7 +455,10 @@ export async function signOut() {
 
 export async function setQuoteStatus(f: FormData) {
   const db = await requireAdmin('devis')
-  await db.from('quote_requests').update({ status: str(f, 'status'), admin_notes: str(f, 'admin_notes') || null }).eq('id', str(f, 'id'))
+  const upd: Record<string, unknown> = {}
+  if (f.has('status')) upd.status = str(f, 'status')
+  if (f.has('admin_notes')) upd.admin_notes = str(f, 'admin_notes') || null
+  await db.from('quote_requests').update(upd).eq('id', str(f, 'id'))
   revalidatePath('/admin/devis')
 }
 

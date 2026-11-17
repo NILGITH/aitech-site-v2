@@ -338,3 +338,115 @@ footer .end{border-top:1px solid #45484D;margin-top:40px;padding-top:24px;displa
 .who{display:flex;flex-direction:column;gap:2px;padding:10px 12px;margin:4px 0 8px;border-radius:12px;background:rgba(255,255,255,.08);font-size:14px;color:#D9DBDF;text-decoration:none}
 .who strong{color:#fff;font-size:15px}
 .admin aside a.grp-link{padding:0 12px;border:0;color:#9CC7FB;font-weight:600;font-size:13px;margin-top:18px}
+
+/* ================= Backoffice : système de design compact ================= */
+.admin{--a-bg:#F4F5F7;--a-surface:#fff;--a-line:#E4E6EA;--a-line-2:#EEF0F3;--a-text:#25272B;--a-muted:#626771;--a-nav:#1F2124;--a-hover:#F7F9FC;
+  background:var(--a-bg);color:var(--a-text);font-size:14px;line-height:1.45;grid-template-columns:236px minmax(0,1fr)}
+.admin main{padding:28px 32px 48px;max-width:1440px;width:100%;box-sizing:border-box}
+.admin main h1{padding:0;border:0;align-self:auto}
+.admin .h2{font-size:24px;line-height:1.2;letter-spacing:-.01em;font-weight:700}
+.admin .h3{font-size:17px;line-height:1.3;letter-spacing:0;font-weight:700}
+.admin .muted{color:var(--a-muted)}
+.admin .stack{gap:18px}
+/* navigation */
+.admin aside{background:var(--a-nav);border-top:0;padding:18px 12px;gap:1px;position:sticky;top:0;height:100vh;overflow-y:auto;box-sizing:border-box}
+.admin aside a{padding:7px 10px;border-radius:7px;border-left:0;font-weight:500;font-size:13.5px;color:#C7CAD0}
+.admin aside a:hover,.admin aside a:focus-visible{background:rgba(255,255,255,.07);color:#fff;border-left:0}
+.admin aside a[aria-current=page]{background:rgba(49,140,247,.2);color:#fff;box-shadow:inset 3px 0 0 var(--azure)}
+.admin aside .grp,.admin aside a.grp-link{margin-top:16px;padding:0 10px 4px;font-size:11.5px;font-weight:600;color:#8A9099;letter-spacing:.02em;background:none;box-shadow:none}
+.admin aside .who{margin:6px 0 10px;padding:9px 10px;border-radius:9px;background:rgba(255,255,255,.06)}
+.admin aside .btn{min-height:36px;font-size:13.5px;border-radius:8px;width:100%;background:rgba(255,255,255,.08);color:#E3E5E8}
+/* contrôles */
+.admin .btn{min-height:40px;padding:0 16px;border-radius:9px;font-size:14px;font-weight:600}
+.admin .btn:hover{transform:none;filter:brightness(.96)}
+.admin .btn.small{min-height:34px;padding:0 12px;font-size:13.5px}
+.admin .field{gap:5px}
+.admin .field label{font-size:12.5px;color:var(--a-muted);font-weight:600}
+.admin .field input,.admin .field textarea,.admin .field select,.admin .a-search,.admin select{min-height:38px;padding:7px 11px;border:1px solid #CFD3DA;border-radius:8px;font:14px Urbanist,system-ui,sans-serif;color:var(--a-text);background:#fff}
+.admin .field textarea{min-height:90px}
+.admin .field input:focus,.admin .field textarea:focus,.admin select:focus,.admin .a-search:focus{outline:2px solid var(--azure);outline-offset:0;border-color:var(--azure)}
+.admin .form{padding:20px 22px;border-radius:14px;gap:14px;border:1px solid var(--a-line);box-shadow:none}
+.admin .two{gap:14px}
+.admin .notice{padding:10px 14px;border-radius:8px;font-size:13.5px}
+.admin .keys fieldset,.admin .role,.admin .panel-a,.admin .kpi,.admin .todo a,.admin .setting-card{border-radius:12px}
+.admin .tag{font-size:12.5px}
+/* en-tête de page */
+.a-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 20px}
+.a-head p{margin:4px 0 0;color:var(--a-muted);max-width:720px}
+/* barre d'outils de liste */
+.a-toolbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.a-filters{display:flex;flex-wrap:wrap;gap:6px}
+.a-filters button{display:inline-flex;gap:6px;align-items:center;min-height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--a-line);background:#fff;font:600 13px Urbanist,sans-serif;color:var(--a-muted);cursor:pointer}
+.a-filters button span{font-variant-numeric:tabular-nums;color:#8A9099;font-weight:600}
+.a-filters button[aria-pressed=true]{background:var(--a-text);border-color:var(--a-text);color:#fff}
+.a-filters button[aria-pressed=true] span{color:#C7CAD0}
+.admin .a-search{width:min(300px,100%);padding-left:12px}
+/* tableau */
+.a-card{background:var(--a-surface);border:1px solid var(--a-line);border-radius:12px;overflow:hidden}
+.a-card .scroll{overflow-x:auto}
+.a-table{width:100%;border-collapse:collapse;font-size:13.5px}
+.a-table th{position:sticky;top:0;background:#FAFBFC;text-align:left;font-weight:600;font-size:12.5px;color:var(--a-muted);padding:10px 14px;border-bottom:1px solid var(--a-line);white-space:nowrap}
+.a-table td{padding:12px 14px;border-bottom:1px solid var(--a-line-2);vertical-align:middle}
+.a-table tbody tr:last-child td{border-bottom:0}
+.a-table tbody tr:hover{background:var(--a-hover)}
+.a-table .nowrap,.a-table .num{white-space:nowrap}
+.a-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.a-table th.num{text-align:right}
+.a-ref{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;font-weight:600;white-space:nowrap;color:var(--a-text)}
+.a-sub{display:block;color:var(--a-muted);font-size:12.5px;margin-top:2px;white-space:nowrap}
+.a-muted{color:#9AA0A8}
+.a-empty{padding:40px 20px;text-align:center;color:var(--a-muted)}
+/* personne */
+.a-contact{display:flex;flex-direction:column;gap:1px;min-width:180px;max-width:280px}
+.a-contact strong{font-weight:600}
+.a-contact strong span{font-weight:500;color:var(--a-muted)}
+.a-contact a{color:var(--a-muted);text-decoration:none;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a-contact a:hover{color:var(--azure-text);text-decoration:underline}
+.a-note{margin:4px 0 0;font-size:12.5px;color:var(--a-muted);font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* pastilles et statuts */
+.a-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;line-height:1.6}
+.a-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.a-pill.warn,.a-status.warn{background:#FFF4E0;color:#8A4B00}
+.a-pill.info,.a-status.info{background:#E8F1FE;color:#1450A3}
+.a-pill.ok,.a-status.ok{background:#E3F5E9;color:#17633A}
+.a-pill.off,.a-status.off{background:#F0F1F3;color:#6B7079}
+.a-pill.neutral,.a-status.neutral{background:#F0F1F3;color:#4A4E55}
+.a-status-wrap{display:inline-flex;flex-direction:column;gap:2px}
+.admin select.a-status{appearance:none;-webkit-appearance:none;min-height:30px;padding:3px 28px 3px 12px;border:0;border-radius:999px;font:600 12.5px Urbanist,sans-serif;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23555' stroke-width='1.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.admin select.a-status[data-busy]{opacity:.6;cursor:progress}
+.a-err{font-size:11.5px;color:#9B1C1C;font-weight:600}
+/* paiement */
+.a-pay{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:150px}
+.a-pay small{color:var(--a-muted);font-size:12px;white-space:nowrap}
+.a-bar{display:block;width:110px;height:4px;border-radius:9px;background:#E4E6EA;overflow:hidden}
+.a-bar i{display:block;height:100%;background:var(--azure)}
+.a-copy{display:inline-flex;align-items:center;gap:5px;padding:2px 0;border:0;background:none;color:var(--azure-text);font:600 12.5px Urbanist,sans-serif;cursor:pointer}
+.a-copy:hover{text-decoration:underline}
+/* message dépliable (devis) */
+.a-msg summary{cursor:pointer;color:var(--a-text);list-style:none}
+.a-msg summary::-webkit-details-marker{display:none}
+.a-msg summary strong{display:block;font-weight:600}
+.a-msg summary span{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;color:var(--a-muted);max-width:420px}
+.a-msg[open] summary span{display:none}
+.a-msg p{white-space:pre-wrap;margin:6px 0 0;max-width:560px}
+.a-notefield{min-height:32px!important;width:100%;min-width:160px;font-size:13px!important}
+/* tableau de bord compact */
+.admin .kpi b{font-size:26px}
+.admin .kpi{padding:16px 18px}
+.admin .todo a{padding:12px 14px}
+.admin .todo a b{font-size:22px}
+.admin .panel-a{padding:18px}
+.admin .paystate{font-size:13px;padding:7px 12px}
+@media (max-width:900px){
+  .admin{grid-template-columns:1fr}
+  .admin aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap;gap:4px}
+  .admin aside .grp,.admin aside a.grp-link,.admin aside .who{flex-basis:100%}
+  .admin main{padding:20px 14px 40px}
+  .a-search{width:100%!important}
+}
+.admin .table{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff;border:1px solid var(--a-line);border-radius:12px;overflow:hidden}
+.admin .table th{background:#FAFBFC;color:var(--a-muted);font-size:12.5px;font-weight:600;padding:10px 14px;border-bottom:1px solid var(--a-line)}
+.admin .table td{padding:11px 14px;border-bottom:1px solid var(--a-line-2);vertical-align:middle}
+.admin .badge-s{font-size:12px;font-weight:600;padding:2px 9px}
+.admin details>summary{cursor:pointer}
