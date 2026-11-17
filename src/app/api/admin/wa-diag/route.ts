@@ -1,4 +1,6 @@
 import { loadConfig } from '@/lib/notify'
+import { webhookKey } from '@/lib/payment'
+import { SITE_URL } from '@/lib/site'
 import { sessionClient } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -20,6 +22,7 @@ export async function GET(req: Request) {
   }
   const pn = c.kapso_phone_number_id
   return Response.json({
+    webhook_url: `${SITE_URL}/api/whatsapp/webhook?k=${webhookKey()}`,
     phone: await get(`${pn}?fields=display_phone_number,verified_name,name_status,status,code_verification_status,quality_rating,platform_type,throughput,is_official_business_account,messaging_limit_tier,webhook_configuration`),
     subscribed_apps: await get(`${waba}/subscribed_apps`),
     waba: await get(`${waba}?fields=name,account_review_status,business_verification_status,message_template_namespace`),

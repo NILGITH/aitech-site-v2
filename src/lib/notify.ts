@@ -25,7 +25,7 @@ export async function loadConfig(): Promise<Config | null> {
   return { ...r, resendKey: decrypt(r.resend_key_enc), kapsoKey: decrypt(r.kapso_key_enc) }
 }
 
-async function log(channel: string, recipient: string, event: string, ok: boolean, detail: string) {
+export async function log(channel: string, recipient: string, event: string, ok: boolean, detail: string) {
   const token = accessToken(), db = publicClient()
   if (!token || !db) return
   await db.rpc('log_notification', { p_token: token, p_channel: channel, p_recipient: recipient, p_event: event, p_ok: ok, p_detail: detail })

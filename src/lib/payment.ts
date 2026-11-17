@@ -82,3 +82,9 @@ export async function verifyTransaction(keys: Keys, transactionId: string): Prom
     return (await r.json()) as KkiapayTx
   } catch { return null }
 }
+
+/** Jeton secret intégré à l'URL du webhook WhatsApp (dérivé de la clé maîtresse, jamais stocké). */
+export function webhookKey(): string | null {
+  const key = master()
+  return key ? createHmac('sha256', key).update('aitech-whatsapp-webhook').digest('hex').slice(0, 40) : null
+}
