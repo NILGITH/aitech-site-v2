@@ -59,22 +59,52 @@ function Input({ field, row, uid, table, refs }: { field: Field; row?: Row; uid:
 
 function RowForm({ table, def, row, refs }: { table: string; def: TableDef; row?: Row; refs: Refs }) {
   const uid = row ? String(row[def.key]) : 'new'
+  const wide = (f: Field) => ['textarea', 'image', 'list', 'json'].includes(f.type)
   return (
-    <div className="stack" style={{ gap: 12 }}>
-      <form action={saveRow} className="stack" style={{ gap: 14 }}>
+    <div className="a-edit">
+      <form action={saveRow} id={`f-${uid}`} className="a-grid">
         <input type="hidden" name="_table" value={table} />
         <input type="hidden" name="_id" value={row ? String(row[def.key]) : ''} />
-        {def.fields.map((f) => <Input key={f.name} field={f} row={row} uid={uid} table={table} refs={refs} />)}
-        <button className="btn small" type="submit" style={{ alignSelf: 'flex-start' }}>{row ? 'Enregistrer' : 'Ajouter'}</button>
+        {def.fields.map((f) => <div key={f.name} className={wide(f) ? 'span' : undefined}><Input field={f} row={row} uid={uid} table={table} refs={refs} /></div>)}
       </form>
-      {row && (
-        <form action={deleteRow}>
-          <input type="hidden" name="_table" value={table} />
-          <input type="hidden" name="_id" value={String(row[def.key])} />
-          <button className="link" type="submit" style={{ background: 'none', border: 0, cursor: 'pointer', color: '#7A1F1A', font: '600 16px Urbanist, sans-serif' }}>Supprimer cet élément</button>
-        </form>
-      )}
+      <div className="a-edit-foot">
+        <button className="btn" type="submit" form={`f-${uid}`}>{row ? 'Enregistrer les modifications' : 'Ajouter'}</button>
+        {row && (
+          <form action={deleteRow}>
+            <input type="hidden" name="_table" value={table} />
+            <input type="hidden" name="_id" value={String(row[def.key])} />
+            <button className="a-danger" type="submit">Supprimer</button>
+          </form>
+        )}
+      </div>
     </div>
+  )
+}
+
+const money = (n: unknown) => `${new Intl.NumberFormat('fr-FR').format(Number(n))} FCFA`.replace(/\u202f/g, ' ')
+
+/** Résumé d'une ligne : vignette, titre, informations clés et état de publication. */
+function Summary({ def, row, refLabel }: { def: TableDef; row: Row; refLabel?: string }) {
+  const img = def.fields.find((f) => f.type === 'image')
+  const src = img ? (row[img.name] as string | null) : null
+  const meta: string[] = []
+  if (refLabel) meta.push(refLabel)
+  for (const f of def.fields) {
+    const v = row[f.name]
+    if (v == null || v === '' || f.name === def.title) continue
+    if (f.type === 'select' && meta.length < 3) meta.push(String(v))
+    if (f.name === 'price_xof' || f.name === 'price') meta.push(Number(v) > 0 ? money(v) : 'Gratuit')
+    if ((f.type === 'datetime' || f.type === 'date') && f.name.startsWith('start')) meta.push(new Date(String(v)).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }))
+  }
+  const pubField = def.fields.find((f) => f.name === 'published' || f.name === 'active')
+  const on = pubField ? row[pubField.name] !== false : true
+  return (
+    <summary className="a-row">
+      {img && (src ? <img src={src} alt="" className="a-thumb" /> : <span className="a-thumb empty" aria-hidden="true" />)}
+      <span className="a-row-main"><strong>{String(row[def.title] ?? 'Sans titre')}</strong>{meta.length > 0 && <span>{meta.join(' · ')}</span>}</span>
+      {pubField && <span className={`a-pill ${on ? 'ok' : 'off'}`}>{on ? (pubField.name === 'active' ? 'En vente' : 'Publié') : (pubField.name === 'active' ? 'Retiré' : 'Masqué')}</span>}
+      <span className="a-row-edit">Modifier</span>
+    </summary>
   )
 }
 
@@ -95,19 +125,22 @@ export default async function ContentTable({ params }: { params: Promise<{ table
   const refField = def.fields.find((f) => f.type === 'ref')
   const refLabel = (row: Row) => (refField ? refs[refField.name]?.find((o) => o.id === String(row[refField.name]))?.label : undefined)
   return (
-    <div className="stack" style={{ gap: 24, maxWidth: 860 }}>
-      <h1 className="h2">{def.label}</h1>
-      {rows.length === 0 && <p className="muted">Cette rubrique est vide dans la base : le site affiche pour l&apos;instant les contenus par défaut. Ajoutez un premier élément ci-dessous.</p>}
-      {rows.map((row) => (
-        <details key={String(row[def.key])} className="col" style={{ gap: 0 }}>
-          <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: 19, minHeight: 44 }}>{refLabel(row) ? `${refLabel(row)} — ` : ''}{String(row[def.title] ?? '')}</summary>
-          <div style={{ paddingTop: 16 }}><RowForm table={table} def={def} row={row} refs={refs} /></div>
-        </details>
-      ))}
-      <details className="col" style={{ gap: 0 }}>
-        <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: 19, minHeight: 44 }}>Ajouter un élément</summary>
-        <div style={{ paddingTop: 16 }}><RowForm table={table} def={def} refs={refs} /></div>
+    <div className="stack" style={{ maxWidth: 1080 }}>
+      <div className="a-head"><div><h1 className="h2">{def.label}</h1><p>{rows.length} élément{rows.length > 1 ? 's' : ''}. Cliquez sur une ligne pour la modifier ; les changements apparaissent sur le site en moins d&apos;une minute.</p></div></div>
+      <details className="a-card a-add">
+        <summary className="a-row"><span className="a-add-ico" aria-hidden="true">+</span><span className="a-row-main"><strong>Ajouter un élément</strong></span></summary>
+        <RowForm table={table} def={def} refs={refs} />
       </details>
+      {rows.length === 0 ? <p className="a-empty a-card">Cette rubrique est vide dans la base : le site affiche pour l&apos;instant les contenus par défaut.</p> : (
+        <div className="a-card a-rows">
+          {rows.map((row) => (
+            <details key={String(row[def.key])}>
+              <Summary def={def} row={row} refLabel={refLabel(row)} />
+              <RowForm table={table} def={def} row={row} refs={refs} />
+            </details>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

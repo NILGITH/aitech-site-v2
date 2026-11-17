@@ -41,7 +41,7 @@ export default async function Participants({ searchParams }: { searchParams: Pro
               <tr key={r.id}>
                 <td><span className="a-ref">{r.reference}</span><span className="a-sub">{day(r.created_at)} · {time(r.created_at)}</span></td>
                 <td><Contact name={r.full_name} company={r.company} email={r.email} phone={r.phone} note={r.message} /></td>
-                <td style={{ minWidth: 200 }}>{r.event_title}</td>
+                <td className="a-clip">{r.event_title}</td>
                 <td className="num">{r.seats}</td>
                 <td className="num">{r.amount_xof > 0 ? money(r.amount_xof) : <span className="a-muted">Gratuit</span>}</td>
                 <td><PaymentCell status={r.status} amount={r.amount_xof} provider={r.payment_provider} paymentRef={r.payment_ref} paidAt={r.paid_at} reference={r.reference} amountPaid={r.amount_paid} plan={r.plan} /></td>

@@ -450,3 +450,30 @@ footer .end{border-top:1px solid #45484D;margin-top:40px;padding-top:24px;displa
 .admin .table td{padding:11px 14px;border-bottom:1px solid var(--a-line-2);vertical-align:middle}
 .admin .badge-s{font-size:12px;font-weight:600;padding:2px 9px}
 .admin details>summary{cursor:pointer}
+.a-table .a-clip{min-width:140px;max-width:240px}
+.a-contact{min-width:160px;max-width:240px}
+.a-pay{min-width:120px}
+.a-table td:last-child,.a-table th:last-child{padding-right:18px}
+/* éditeur de contenus */
+.a-rows>details{border-bottom:1px solid var(--a-line-2)}
+.a-rows>details:last-child{border-bottom:0}
+.a-row{display:flex;align-items:center;gap:14px;padding:12px 16px;cursor:pointer;list-style:none}
+.a-row::-webkit-details-marker{display:none}
+.a-row:hover{background:var(--a-hover)}
+details[open]>.a-row{background:#F1F6FE;border-bottom:1px solid var(--a-line)}
+.a-row-main{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.a-row-main strong{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a-row-main span{color:var(--a-muted);font-size:12.5px}
+.a-row-edit{color:var(--azure-text);font-weight:600;font-size:13px}
+details[open]>.a-row .a-row-edit{visibility:hidden}
+.a-thumb{width:52px;height:40px;border-radius:7px;object-fit:cover;flex:none;background:#E9ECF0}
+.a-thumb.empty{display:block}
+.a-add-ico{width:30px;height:30px;border-radius:8px;background:var(--azure);color:var(--azure-ink);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex:none}
+.a-edit{padding:18px 18px 0}
+.a-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+.a-grid .span{grid-column:1/-1}
+.a-edit-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0 18px;margin-top:16px;border-top:1px solid var(--a-line-2)}
+.a-danger{background:none;border:0;color:#9B1C1C;font:600 13.5px Urbanist,sans-serif;cursor:pointer;padding:8px 4px}
+.a-danger:hover{text-decoration:underline}
+.admin .imgfield-row img,.admin .imgfield-empty{width:140px;height:96px}
+@media (max-width:700px){.a-grid{grid-template-columns:1fr}}

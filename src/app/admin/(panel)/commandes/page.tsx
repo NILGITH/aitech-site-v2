@@ -32,7 +32,7 @@ export default async function Orders({ searchParams }: { searchParams: Promise<{
               <tr key={o.id}>
                 <td><span className="a-ref">{o.reference}</span><span className="a-sub">{day(o.created_at)} · {time(o.created_at)}</span></td>
                 <td><Contact name={o.customer_name} email={o.email} phone={o.phone} /></td>
-                <td style={{ minWidth: 200 }}>{(o.order_items as Item[]).map((i) => <div key={i.name}><span className="a-muted">{i.quantity} ×</span> {i.name}</div>)}</td>
+                <td className="a-clip">{(o.order_items as Item[]).map((i) => <div key={i.name}><span className="a-muted">{i.quantity} ×</span> {i.name}</div>)}</td>
                 <td className="num">{money(o.total_xof)}</td>
                 <td><PaymentCell status={o.status} amount={o.total_xof} provider={o.payment_provider} paymentRef={o.payment_ref} paidAt={o.paid_at} reference={o.reference} amountPaid={o.amount_paid} plan={o.plan} /></td>
                 <td><StatusSelect action={setOrderStatus} id={o.id} value={o.status} options={OPTS} label={`Statut de la commande ${o.reference}`} /></td>

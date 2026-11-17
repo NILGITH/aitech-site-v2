@@ -31,7 +31,7 @@ export default async function Enrollments({ searchParams }: { searchParams: Prom
               <tr key={e.id}>
                 <td><span className="a-ref">{e.reference}</span><span className="a-sub">{day(e.created_at)} · {time(e.created_at)}</span></td>
                 <td><Contact name={e.full_name} company={e.company} email={e.email} phone={e.phone} note={e.message} /></td>
-                <td style={{ minWidth: 200 }}>{e.training_title}</td>
+                <td className="a-clip">{e.training_title}</td>
                 <td className="num">{money(e.amount_xof)}</td>
                 <td><PaymentCell status={e.status} amount={e.amount_xof} provider={e.payment_provider} paymentRef={e.payment_ref} paidAt={e.paid_at} reference={e.reference} amountPaid={e.amount_paid} plan={e.plan} /></td>
                 <td><StatusSelect action={setEnrollmentStatus} id={e.id} value={e.status} options={OPTS} label={`Statut de l'inscription ${e.reference}`} /></td>
