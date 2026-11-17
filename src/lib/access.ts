@@ -6,6 +6,7 @@ import { sessionClient } from './supabase'
 /** Modules du backoffice soumis à autorisation. */
 export const MODULES = [
   { key: 'devis', label: 'Demandes de devis' },
+  { key: 'messagerie', label: 'Messagerie WhatsApp (lire et répondre)' },
   { key: 'boutique', label: 'Boutique (commandes et produits)' },
   { key: 'formations', label: 'Formations et inscriptions' },
   { key: 'evenements', label: 'Événements et participants' },

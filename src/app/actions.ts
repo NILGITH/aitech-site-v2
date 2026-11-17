@@ -437,6 +437,47 @@ export async function requestPasswordReset(_: FormState, f: FormData): Promise<F
   return { ok: true, message: 'Si cette adresse correspond à un compte, un lien de réinitialisation vient de lui être envoyé.' }
 }
 
+// ---------- Messagerie WhatsApp (Kapso)
+export type InboxState = { ok: boolean; error?: string; conversations?: import('@/lib/kapso').Conversation[]; messages?: import('@/lib/kapso').Message[] }
+
+export async function inboxConversations(): Promise<InboxState> {
+  await requireAdmin('messagerie')
+  const { listConversations } = await import('@/lib/kapso')
+  try { return { ok: true, conversations: await listConversations(60) } }
+  catch (e) { return { ok: false, error: (e as Error).message === 'not_configured' ? 'not_configured' : 'Impossible de joindre Kapso pour le moment.' } }
+}
+
+export async function inboxThread(conversationId: string): Promise<InboxState> {
+  await requireAdmin('messagerie')
+  const { listMessages, markRead } = await import('@/lib/kapso')
+  try {
+    const messages = await listMessages(conversationId, 100)
+    const lastIn = [...messages].reverse().find((m) => m.direction === 'inbound')
+    if (lastIn && lastIn.status !== 'read') await markRead(lastIn.id)
+    return { ok: true, messages }
+  } catch { return { ok: false, error: 'Impossible de charger cette conversation.' } }
+}
+
+/** Répond à un client. Mode « texte » dans les 24 h, sinon modèle approuvé. */
+export async function inboxReply(phone: string, name: string, text: string, mode: 'text' | 'template'): Promise<{ ok: boolean; message?: string }> {
+  await requireAdmin('messagerie')
+  const body = text.trim()
+  if (!body || !/\d{8,}/.test(phone.replace(/\D/g, ''))) return { ok: false, message: 'Message vide ou numéro invalide.' }
+  if (body.length > 4000) return { ok: false, message: 'Message trop long (4 000 caractères maximum).' }
+  const { sendText, sendTemplate } = await import('@/lib/kapso')
+  try {
+    if (mode === 'template') await sendTemplate(phone, name || 'client', body)
+    else await sendText(phone, body)
+    return { ok: true }
+  } catch (e) {
+    const b = JSON.stringify((e as { body?: unknown }).body ?? '')
+    if (/131047|24 hour|re-engagement/i.test(b)) return { ok: false, message: 'Plus de 24 h depuis le dernier message du client : WhatsApp impose un modèle approuvé. Utilisez « Relancer avec le modèle ».' }
+    if ((e as Error).message === 'no_template') return { ok: false, message: 'Aucun modèle WhatsApp configuré (Paramètres > Notifications).' }
+    if (/132001|template/i.test(b)) return { ok: false, message: 'Le modèle WhatsApp n’est pas encore approuvé par Meta.' }
+    return { ok: false, message: 'Envoi refusé par WhatsApp. Détail : ' + b.slice(0, 160) }
+  }
+}
+
 export async function signIn(_: FormState, f: FormData): Promise<FormState> {
   const db = await sessionClient()
   if (!db) return { ok: false, message: "La base de données n'est pas encore connectée." }

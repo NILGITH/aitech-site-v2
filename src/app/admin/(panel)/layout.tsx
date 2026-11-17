@@ -10,7 +10,7 @@ export const metadata = { title: 'Backoffice', robots: { index: false } }
 
 type Item = { href: string; label: string; perm?: Perm }
 const GROUPS: { title?: string; items: Item[] }[] = [
-  { items: [{ href: '/admin', label: 'Tableau de bord' }, { href: '/admin/devis', label: 'Demandes de devis', perm: 'devis' }] },
+  { items: [{ href: '/admin', label: 'Tableau de bord' }, { href: '/admin/devis', label: 'Demandes de devis', perm: 'devis' }, { href: '/admin/whatsapp', label: 'Messagerie WhatsApp', perm: 'messagerie' }] },
   { title: 'Boutique', items: [{ href: '/admin/commandes', label: 'Commandes', perm: 'boutique' }, { href: '/admin/contenus/products', label: 'Produits', perm: 'boutique' }] },
   { title: 'Formations', items: [{ href: '/admin/inscriptions', label: 'Inscriptions', perm: 'formations' }, { href: '/admin/contenus/trainings', label: 'Formations', perm: 'formations' }, { href: '/admin/contenus/training_modules', label: 'Modules', perm: 'formations' }] },
   { title: 'Événements', items: [{ href: '/admin/participants', label: 'Participants', perm: 'evenements' }, { href: '/admin/contenus/events', label: 'Événements', perm: 'evenements' }] },
