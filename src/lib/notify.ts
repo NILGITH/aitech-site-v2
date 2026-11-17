@@ -73,20 +73,29 @@ export async function sendEmail(c: Config, to: string, subject: string, title: s
   } catch (e) { await log('email', to, event, false, String(e)); return false }
 }
 
-/** WhatsApp : modèle approuvé (obligatoire hors fenêtre de 24 h) avec 2 variables {{1}} nom et {{2}} message, sinon message texte. */
+/** WhatsApp : modèle approuvé (obligatoire hors fenêtre de 24 h) avec 2 variables {{1}} nom et {{2}} message.
+ *  Si le modèle est refusé (pas encore approuvé, par exemple), on retente en message texte, accepté dans les 24 h suivant un message du client. */
 export async function sendWhatsApp(c: Config, phone: string, name: string, message: string, event: string) {
   const to = toWa(phone)
   if (!c.whatsapp_enabled || !c.kapsoKey || !c.kapso_phone_number_id || !to) return false
-  const payload = c.wa_template
-    ? { messaging_product: 'whatsapp', to, type: 'template', template: { name: c.wa_template, language: { code: c.wa_template_lang || 'fr' },
-        components: [{ type: 'body', parameters: [{ type: 'text', text: name.slice(0, 60) }, { type: 'text', text: message.replace(/\s*\n\s*/g, ' · ').slice(0, 900) }] }] } }
-    : { messaging_product: 'whatsapp', to, type: 'text', text: { body: `Bonjour ${name},\n${message}` } }
+  const url = `https://api.kapso.ai/meta/whatsapp/v24.0/${encodeURIComponent(c.kapso_phone_number_id)}/messages`
+  const post = async (payload: object) => {
+    const r = await fetch(url, { method: 'POST', headers: { 'X-API-Key': c.kapsoKey!, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    return { ok: r.ok, body: await r.text() }
+  }
+  const flat = message.replace(/\s*\n\s*/g, ' · ').replace(/\s{4,}/g, ' ').slice(0, 900)
+  const text = { messaging_product: 'whatsapp', to, type: 'text', text: { body: `Bonjour ${name},\n${message}` } }
   try {
-    const r = await fetch(`https://api.kapso.ai/meta/whatsapp/v24.0/${encodeURIComponent(c.kapso_phone_number_id)}/messages`, {
-      method: 'POST', headers: { 'X-API-Key': c.kapsoKey, 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
-    })
-    const body = await r.text()
-    await log('whatsapp', to, event, r.ok, r.ok ? 'envoyé' : body.slice(0, 300))
+    if (c.wa_template) {
+      const t = await post({ messaging_product: 'whatsapp', to, type: 'template', template: { name: c.wa_template, language: { code: c.wa_template_lang || 'fr' },
+        components: [{ type: 'body', parameters: [{ type: 'text', text: name.slice(0, 60) }, { type: 'text', text: flat }] }] } })
+      if (t.ok) { await log('whatsapp', to, event, true, `modèle ${c.wa_template}`); return true }
+      const r = await post(text)
+      await log('whatsapp', to, event, r.ok, r.ok ? `texte (modèle refusé : ${t.body.slice(0, 160)})` : `modèle : ${t.body.slice(0, 200)} | texte : ${r.body.slice(0, 200)}`)
+      return r.ok
+    }
+    const r = await post(text)
+    await log('whatsapp', to, event, r.ok, r.ok ? 'texte' : r.body.slice(0, 300))
     return r.ok
   } catch (e) { await log('whatsapp', to, event, false, String(e)); return false }
 }
