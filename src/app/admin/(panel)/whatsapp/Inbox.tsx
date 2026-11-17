@@ -25,12 +25,13 @@ export default function Inbox() {
   const [q, setQ] = useState('')
   const thread = useRef<HTMLDivElement>(null)
 
+  const phones = useRef<Record<string, string>>({})
   const loadConvs = useCallback(async () => {
     const r = await inboxConversations()
-    if (r.ok) { setConvs(r.conversations ?? []); setError('') } else setError(r.error === 'not_configured' ? 'WhatsApp n’est pas configuré.' : r.error ?? 'Erreur')
+    if (r.ok) { setConvs(r.conversations ?? []); phones.current = Object.fromEntries((r.conversations ?? []).map((c) => [c.id, c.phone])); setError('') } else setError(r.error === 'not_configured' ? 'WhatsApp n’est pas configuré.' : r.error ?? 'Erreur')
   }, [])
   const loadThread = useCallback(async (id: string) => {
-    const r = await inboxThread(id)
+    const r = await inboxThread(id, phones.current[id] ?? '')
     if (r.ok) setMsgs(r.messages ?? [])
   }, [])
 

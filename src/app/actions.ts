@@ -440,34 +440,65 @@ export async function requestPasswordReset(_: FormState, f: FormData): Promise<F
 // ---------- Messagerie WhatsApp (Kapso)
 export type InboxState = { ok: boolean; error?: string; conversations?: import('@/lib/kapso').Conversation[]; messages?: import('@/lib/kapso').Message[] }
 
+type WaRow = { id: string; phone: string; name: string | null; direction: 'inbound' | 'outbound'; type: string; body: string | null; status: string | null; at: string }
+const digits = (p: string) => p.replace(/\D/g, '')
+
 export async function inboxConversations(): Promise<InboxState> {
-  await requireAdmin('messagerie')
+  const db = await requireAdmin('messagerie')
   const { listConversations } = await import('@/lib/kapso')
-  try { return { ok: true, conversations: await listConversations(60) } }
-  catch (e) { return { ok: false, error: (e as Error).message === 'not_configured' ? 'not_configured' : 'Impossible de joindre Kapso pour le moment.' } }
+  let convs: import('@/lib/kapso').Conversation[] = [], kapsoErr: string | null = null
+  try { convs = await listConversations(60) } catch (e) { kapsoErr = (e as Error).message === 'not_configured' ? 'not_configured' : 'Impossible de joindre Kapso pour le moment.' }
+  // Messages reçus directement de Meta (webhook du site) : fusionnés par numéro avec ceux de Kapso.
+  const { data, error } = await db.from('wa_messages').select('*').order('at', { ascending: false }).limit(1000)
+  if (kapsoErr && error) return { ok: false, error: kapsoErr }
+  const byPhone = new Map(convs.map((c) => [digits(c.phone), c]))
+  for (const m of (data ?? []) as WaRow[]) {
+    const k = digits(m.phone)
+    let c = byPhone.get(k)
+    if (!c) {
+      c = { id: `db:${k}`, phone: k, name: null, lastAt: m.at, status: 'active', lastText: null, lastType: null, lastInboundAt: null, lastOutboundAt: null, count: 0 }
+      byPhone.set(k, c); convs.push(c)
+    }
+    if (!c.name && m.name) c.name = m.name
+    if (m.at > c.lastAt || !c.lastText) { c.lastAt = m.at > c.lastAt ? m.at : c.lastAt; c.lastText = m.body; c.lastType = m.type } // lignes triées du plus récent au plus ancien
+    if (m.direction === 'inbound' && (!c.lastInboundAt || m.at > c.lastInboundAt)) c.lastInboundAt = m.at
+    if (m.direction === 'outbound' && (!c.lastOutboundAt || m.at > c.lastOutboundAt)) c.lastOutboundAt = m.at
+    if (c.id.startsWith('db:')) c.count++
+  }
+  convs.sort((a, b) => (a.lastAt < b.lastAt ? 1 : -1))
+  return { ok: true, conversations: convs }
 }
 
-export async function inboxThread(conversationId: string): Promise<InboxState> {
-  await requireAdmin('messagerie')
+export async function inboxThread(conversationId: string, phone = ''): Promise<InboxState> {
+  const db = await requireAdmin('messagerie')
   const { listMessages, markRead } = await import('@/lib/kapso')
-  try {
-    const messages = await listMessages(conversationId, 100)
-    const lastIn = [...messages].reverse().find((m) => m.direction === 'inbound')
-    if (lastIn && lastIn.status !== 'read') await markRead(lastIn.id)
-    return { ok: true, messages }
-  } catch { return { ok: false, error: 'Impossible de charger cette conversation.' } }
+  let messages: import('@/lib/kapso').Message[] = []
+  if (!conversationId.startsWith('db:')) {
+    try { messages = await listMessages(conversationId, 100) } catch { /* Kapso indisponible : on montre au moins les messages reçus par le site */ }
+  }
+  const k = digits(phone || conversationId.replace(/^db:/, ''))
+  if (k) {
+    const { data } = await db.from('wa_messages').select('*').like('phone', `%${k.slice(-8)}`).order('at', { ascending: true }).limit(300)
+    const seen = new Set(messages.map((m) => m.id))
+    for (const r of (data ?? []) as WaRow[]) if (!seen.has(r.id) && digits(r.phone) === k) messages.push({ id: r.id, at: r.at, direction: r.direction, status: r.status, type: r.type, text: r.body, mediaUrl: null, fileName: null })
+    messages.sort((a, b) => (a.at < b.at ? -1 : 1))
+  }
+  const lastIn = [...messages].reverse().find((m) => m.direction === 'inbound')
+  if (lastIn && lastIn.status !== 'read' && lastIn.id.startsWith('wamid')) await markRead(lastIn.id)
+  return { ok: true, messages }
 }
 
 /** Répond à un client. Mode « texte » dans les 24 h, sinon modèle approuvé. */
 export async function inboxReply(phone: string, name: string, text: string, mode: 'text' | 'template'): Promise<{ ok: boolean; message?: string }> {
-  await requireAdmin('messagerie')
+  const db = await requireAdmin('messagerie')
   const body = text.trim()
   if (!body || !/\d{8,}/.test(phone.replace(/\D/g, ''))) return { ok: false, message: 'Message vide ou numéro invalide.' }
   if (body.length > 4000) return { ok: false, message: 'Message trop long (4 000 caractères maximum).' }
   const { sendText, sendTemplate } = await import('@/lib/kapso')
   try {
-    if (mode === 'template') await sendTemplate(phone, name || 'client', body)
-    else await sendText(phone, body)
+    const res = (mode === 'template' ? await sendTemplate(phone, name || 'client', body) : await sendText(phone, body)) as { messages?: { id: string }[] }
+    const id = res?.messages?.[0]?.id
+    if (id) await db.from('wa_messages').insert({ id, phone: digits(phone), name: name || null, direction: 'outbound', type: mode === 'template' ? 'template' : 'text', body, status: 'sent' })
     return { ok: true }
   } catch (e) {
     const b = JSON.stringify((e as { body?: unknown }).body ?? '')
