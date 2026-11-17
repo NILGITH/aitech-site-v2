@@ -477,3 +477,4 @@ details[open]>.a-row .a-row-edit{visibility:hidden}
 .a-danger:hover{text-decoration:underline}
 .admin .imgfield-row img,.admin .imgfield-empty{width:140px;height:96px}
 @media (max-width:700px){.a-grid{grid-template-columns:1fr}}
+.admin .a-notefield{border:1px solid #D7DAE0;border-radius:8px;padding:5px 10px;font:13px Urbanist,sans-serif;background:#fff;color:var(--a-text);box-sizing:border-box}.admin .a-notefield:focus{outline:2px solid var(--azure);border-color:var(--azure)}
