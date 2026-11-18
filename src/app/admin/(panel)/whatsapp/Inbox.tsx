@@ -59,7 +59,7 @@ export default function Inbox() {
   }
 
   return (
-    <div className={`wa ${sel ? 'has-sel' : ''}`}>
+    <div className={`wa-inbox ${sel ? 'has-sel' : ''}`}>
       <aside className="wa-list">
         <input className="a-search" type="search" placeholder="Rechercher un contact…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Rechercher un contact" style={{ width: '100%' }} />
         {error && <p className="a-err" role="alert">{error}</p>}

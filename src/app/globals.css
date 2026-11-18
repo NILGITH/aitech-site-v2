@@ -479,7 +479,7 @@ details[open]>.a-row .a-row-edit{visibility:hidden}
 @media (max-width:700px){.a-grid{grid-template-columns:1fr}}
 .admin .a-notefield{border:1px solid #D7DAE0;border-radius:8px;padding:5px 10px;font:13px Urbanist,sans-serif;background:#fff;color:var(--a-text);box-sizing:border-box}.admin .a-notefield:focus{outline:2px solid var(--azure);border-color:var(--azure)}
 /* messagerie WhatsApp */
-.wa{display:grid;grid-template-columns:320px minmax(0,1fr);height:calc(100vh - 170px);min-height:480px;background:#fff;border:1px solid var(--a-line);border-radius:12px;overflow:hidden}
+.wa-inbox{display:grid;grid-template-columns:320px minmax(0,1fr);height:calc(100vh - 170px);min-height:480px;background:#fff;border:1px solid var(--a-line);border-radius:12px;overflow:hidden}
 .wa-list{border-right:1px solid var(--a-line);display:flex;flex-direction:column;gap:8px;padding:12px;min-height:0}
 .wa-list ul{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1}
 .wa-list li button{display:flex;gap:10px;align-items:center;width:100%;padding:10px;border:0;border-radius:10px;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit}
@@ -509,9 +509,9 @@ details[open]>.a-row .a-row-edit{visibility:hidden}
 .wa-row textarea{flex:1;resize:none;min-height:44px;max-height:160px;padding:10px 12px;border:1px solid #CFD3DA;border-radius:10px;font:14px Urbanist,sans-serif}
 .wa-row textarea:focus{outline:2px solid var(--azure);border-color:var(--azure)}
 @media (max-width:900px){
-  .wa{grid-template-columns:1fr;height:calc(100vh - 220px)}
-  .wa.has-sel .wa-list{display:none}
-  .wa:not(.has-sel) .wa-thread{display:none}
+  .wa-inbox{grid-template-columns:1fr;height:calc(100vh - 220px)}
+  .wa-inbox.has-sel .wa-list{display:none}
+  .wa-inbox:not(.has-sel) .wa-thread{display:none}
   .wa-back{display:block}
   .wa-b{max-width:88%}
 }
